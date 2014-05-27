@@ -1,0 +1,10 @@
+# Site settings
+title: Jessie Keck's Blog
+email: jessie.keck@gmail.com
+description: "Random thoughts about software and development process."
+baseurl: ""
+url: "http://jkeck.github.io"
+
+# Build settings
+markdown: kramdown
+permalink: pretty
