@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Introducing SUL Embed"
-date:   2015-04-09 10:00:00
+date:   2015-05-09 15:00:00
 tags: IIIF oEmbed OpenSeadragon
 header: '/images/embed-header-bg.png'
 ---
