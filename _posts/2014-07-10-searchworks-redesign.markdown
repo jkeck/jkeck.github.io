@@ -3,6 +3,7 @@ layout: post
 title:  "SearchWorks Redesign!"
 date:   2014-07-10 10:00:00
 categories: searchworks
+header: '/images/sw-header-bg.png'
 ---
 
 We've begun (several weeks ago) the process of completely redesigning the [SearchWorks](http://searchworks.stanford.edu) application. This site has been running for several years now on a primarily homegrown interface (i.e. a **highly** customized [Blacklight](http://projectblacklight.org) UI). Given that the redesign is a dramatic departure from our current UI we're approaching this from a fresh Blacklight install and porting over code when and where it makes sense as well as re-writing and/or re-organizing the rest.

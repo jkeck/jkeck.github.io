@@ -1,5 +1,5 @@
-<header class="site-header">
-
+<header class="site-header" style="{% if page.header %}background-image: url('{{ page.header }}');{% endif %}">
+  <div class="gradient"></div>
   <div class="wrap">
 
     <a class="site-title" href="{{ site.baseurl }}/">{{ site.title }}</a>

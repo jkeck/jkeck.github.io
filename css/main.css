@@ -41,26 +41,45 @@ a:visited { color: #205caa; }
 /* Site header */
 
 .site-header {
+  position: relative;
   border-top: 5px solid #333;
-  border-bottom: 1px solid #e8e8e8;
+  border-bottom: 4px solid #e8e8e8;
   min-height: 56px;
   background-color: white;
+  background-image: url('/images/header-bg.png');
+  background-attachment: fixed;
+  background-position-y: -30px;
+  color: white;
+  text-shadow: 1px 1px 0 #000000;
+}
+.site-header a { color: white; }
+
+
+.site-header .gradient {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: -webkit-linear-gradient(transparent, rgba(0,0,0,0.4), rgba(0,0,0,0.5));
+  background: linear-gradient(transparent, rgba(0,0,0,0.4), rgba(0,0,0,0.5));
+  z-index: 0;
 }
 
 .site-title,
 .site-title:hover,
 .site-title:visited {
   display: block;
-  color: #333;
   font-size: 26px;
   letter-spacing: -1px;
   float: left;
   line-height: 56px;
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 
 .site-nav {
+  position: relative;
   float: right;
   line-height: 56px;
 }
@@ -69,8 +88,8 @@ a:visited { color: #205caa; }
 
 .site-nav .page-link {
   margin-left: 20px;
-  color: #727272;
   letter-spacing: -.5px;
+  z-index: 2;
 }
 
 /* Site footer */
@@ -205,6 +224,7 @@ a:visited { color: #205caa; }
 .post-content h3 {
   font-size: 26px;
   letter-spacing: -1px;
+  border-bottom: 1px solid #333;
 }
 
 .post-content h4 {
@@ -358,6 +378,11 @@ a:visited { color: #205caa; }
     -moz-border-radius: 5px;
     border-radius: 5px;
     border: 1px solid #e8e8e8;
+  }
+
+  .site-nav a {
+    color: #727272;
+    text-shadow: none;
   }
 
   .site-nav .menu-icon {
