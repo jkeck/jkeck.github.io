@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Public, Private, and Protected Methods"
-date:   2015-10-06 10:00:00
+date:   2015-10-06 22:00:00
 header: '/images/private-vs-protected.png'
 tags: Ruby Design
 ---
