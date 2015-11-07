@@ -6,7 +6,7 @@ permalink: /about/
 
 I'm a software developer with the Stanford University Libraries. I work on various web based products at the library,
 but probably most notably [SearchWorks](http://searchworks.stanford.edu).  I'm also a core contributor the [Blacklight](http://projectblacklight.org) and
-[Hydra](http://projecthydra.org).
+[Hydra](http://projecthydra.org). Check out my [Portfolio](/portfolio/) to see more projects that I've been working on.
 
 This blog will be primarily random thoughts on the projects I'm working on, the technologies that I'm using, and methodologies to solving some of the problems I come across.
 
