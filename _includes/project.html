@@ -1,0 +1,21 @@
+{{ include.project }}
+<div class="media">
+  <a class="pull-left" href="{{ project.location }}">
+    <img class="media-object" src="/images/project-thumbs/{{ project.thumb }}" alt="{{ project.title }}" />
+  </a>
+  <div class="media-body">
+    <h4 class="media-heading">{{ project.title }}</h4>
+    <p>{{ project.description }}</p>
+    <p>
+      {% if project.source %}
+        <a class="gh-icon-link" href="{{ project.source }}" title="{{ project.title }} source code">
+          {% include gh-icon.html %}
+          <span class='sr-only'>{{ project.title }} source code</span>
+        </a>
+      {% endif %}
+      {% if project.tech %}
+        Technologies: {{ project.tech | join: ' • ' }}
+      {% endif %}
+    </p>
+  </div>
+</div>

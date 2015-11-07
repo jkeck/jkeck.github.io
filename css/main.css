@@ -428,3 +428,12 @@ a:visited { color: #205caa; }
     margin: 0 0 15px; }
 
 }
+
+/* Custom Styles */
+.media h4.media-heading {
+  margin: 0 0 5px !important;
+}
+
+.gh-icon-link:hover {
+  text-decoration: none;
+}

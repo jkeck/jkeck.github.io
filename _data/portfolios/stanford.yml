@@ -1,0 +1,41 @@
+- title: SUL Embed
+  description: An oEmbed service to embed digital content into various web applications (personal sites, blogs, discovery environments, etc).
+  location: https://github.com/sul-dlss/sul-embed
+  thumb: embed-thumb.png
+  source: https://github.com/sul-dlss/sul-embed
+  tech:
+    - Rails API
+    - jQuery
+
+- title: SearchWorks
+  description: A next generation descrovery environment to search Stanford's traditional library content mixed with its digital resources.
+  location: https://searchworks.stanford.edu
+  thumb: searchworks-thumb.png
+  source: http://github.com/sul-dlss/SearchWorks
+  tech:
+    - Rails
+    - jQuery
+    - Solr
+    - MySQL
+
+- title: French Revolution Digital Archive
+  description: A digital arvhive built using Blacklight to allow scholars to discover texts and images from the french revolution.
+  location: http://frda.stanford.edu
+  thumb: frda-thumb.png
+  source: http://github.com/sul-dlss/frda
+  tech:
+    - Rails
+    - jQuery
+    - Solr
+    - MySQL
+
+- title: Bassi-Veratti Collection
+  description: A digital archive built using Blacklight to allow scholars to browse and discover the digitized content from the Bassi-Varrati archive.
+  location: http://bv.stanford.edu
+  thumb: bv-thumb.png
+  source: http://github.com/sul-dlss/bv
+  tech:
+    - Rails
+    - jQuery
+    - Solr
+    - MySQL

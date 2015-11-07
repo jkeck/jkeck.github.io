@@ -1,0 +1,8 @@
+- title: BeMobileWellness Website
+  description: A website for a local wellness company. Includes integrations with various scheduling and help desk services.
+  location: http://bemobilewellness.com
+  thumb: bmw-thumb.png
+  tech:
+    - Jekyll
+    - jQuery
+    - Bootstrap

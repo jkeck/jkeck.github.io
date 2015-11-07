@@ -1,0 +1,33 @@
+- title: Spotlight
+  description: An extension to Blacklight that allows curators to arrange, describe, and add narrative to their digital objects.
+  location: http://spotlight.projectblacklight.org
+  thumb: spotlight-thumb.png
+  source: http://github.com/sul-dlss/spotlight
+  tech:
+    - Rails
+    - jQuery
+    - Solr
+    - MySQL
+
+- title: Blacklight
+  description: A rails engine that allows developers to easily create and customize an rails application on top of a Solr index.
+  location: http://projectblacklight.org
+  thumb: blacklight-thumb.png
+  source: http://github.com/projectblacklight/blacklight
+  tech:
+    - Rails
+    - jQuery
+    - Solr
+    - MySQL
+
+- title: Hydra
+  description: A rails engine that allows developers to easily create and customize a rails application on top of a the fedora digital repository software.
+  location: http://projecthydra.org
+  thumb: hydra-thumb.png
+  source: https://github.com/projecthydra/hydra-head
+  tech:
+    - Rails
+    - jQuery
+    - Solr
+    - MySQL
+    - Fedora
