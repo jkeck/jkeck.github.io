@@ -32,14 +32,16 @@ permalink: /classify/
   Once training is complete, you can click the <code>Start guessing</code> button to begin to use the model to guess what is currently in the camera input.
 </p>
 <div>
-  <div>
-    <button class="btn btn-default" id="classifyA">Classify A (0)</button>
-    <input class="form-control" type="text" id="inputA" placeholder="Label A" />
+  <div class="label-field-group">
+    <button class="btn btn-default" id="classify0">Classify A <span class="count">(0)</span></button>
+    <input class="form-control" type="text" id="input0" placeholder="Label A" />
   </div>
-  <div>
-    <button class="btn btn-default" id="classifyB">Classify B (0)</button>
-    <input class="form-control" type="text" id="inputB"  placeholder="Label B" />
+  <div class="label-field-group">
+    <button class="btn btn-default" id="classify1">Classify B <span class="count">(0)</span></button>
+    <input class="form-control" type="text" id="input1"  placeholder="Label B" />
   </div>
+
+  <button class="btn btn-default" id="addLabel">➕ Add Label</button>
 </div>
 <div>
   <button class="btn btn-default" id="train" disabled>Train <span id="loss"></span></button>
