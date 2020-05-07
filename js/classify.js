@@ -31,6 +31,13 @@ function classify() {
   classifier.classify(gotResults);
 }
 
+function enableTrainButton() {
+  let trainButton = document.getElementById('train');
+  if (aImageCount > 0 && bImageCount > 0) {
+    trainButton.removeAttribute('disabled');
+  }
+}
+
 // A util function to create UI buttons
 function setupButtons() {
   let buttonA = document.getElementById('classifyA');
@@ -40,6 +47,7 @@ function setupButtons() {
     aImageCount++;
     classifier.addImage(inputA.value !== "" ? inputA.value : 'A');
     buttonA.innerHTML = `Classify A (${aImageCount})`;
+    enableTrainButton();
   }
 
   let buttonB = document.getElementById('classifyB');
@@ -49,12 +57,18 @@ function setupButtons() {
     bImageCount++;
     classifier.addImage(inputB.value !== "" ? inputB.value : 'B');
     buttonB.innerHTML = `Classify B (${bImageCount})`;
+    enableTrainButton();
   }
 
   // Predict Button
   let predictButton = document.getElementById('predict');
   predictButton.onclick = function(e) {
     classify();
+  }
+
+  let saveButton = document.getElementById('save');
+  saveButton.onclick = function(e) {
+    classifier.save();
   }
 
   // Train button
@@ -68,14 +82,11 @@ function setupButtons() {
       } else {
         trainButton.innerHTML = `Training completed. Final loss: ${loss}`;
         predictButton.removeAttribute('disabled');
+        saveButton.removeAttribute('disabled');
       }
     });
   }
 
-  let saveButton = document.getElementById('save');
-  saveButton.onclick = function(e) {
-    classifier.save();
-  }
 
   let load = document.getElementById('loadModel');
   load.onchange = function(e) {
