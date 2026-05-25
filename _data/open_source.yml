@@ -1,0 +1,28 @@
+- name: Blacklight
+  blurb: "A Rails engine for building Solr-backed discovery interfaces. Powers library catalogs and archival finding aids at institutions worldwide."
+  url: http://projectblacklight.org
+  source: https://github.com/projectblacklight/blacklight
+  tags: [ruby, rails, solr]
+
+- name: Samvera
+  blurb: "A digital repository framework for libraries and archives, built on Fedora. Formerly Hydra — contributed to the framework and several downstream applications."
+  url: https://samvera.org
+  source: https://github.com/samvera
+  tags: [ruby, rails, fedora]
+  note: "formerly Hydra"
+
+- name: Spotlight
+  blurb: "A Blacklight extension that lets curators build exhibit sites around digital collections — arranging objects, adding narrative, and customizing display without touching code."
+  source: https://github.com/sul-dlss/spotlight
+  tags: [ruby, rails, blacklight]
+
+- name: SearchWorks
+  blurb: "Stanford Libraries' primary discovery environment — a Blacklight application spanning the traditional catalog, digital collections, and licensed databases."
+  url: https://searchworks.stanford.edu
+  source: https://github.com/sul-dlss/SearchWorks
+  tags: [ruby, rails, blacklight, solr]
+
+- name: SUL Embed
+  blurb: "An oEmbed service for embedding Stanford digital library content into any web context — viewers for maps, manuscripts, media, and 3D objects."
+  source: https://github.com/sul-dlss/sul-embed
+  tags: [ruby, rails, oembed]

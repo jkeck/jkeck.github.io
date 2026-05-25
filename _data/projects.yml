@@ -4,11 +4,7 @@
   badge: live
 
 - name: OSS Contributions
-  blurb: "Long-running contributor to Blacklight, Hydra, and a handful of smaller Ruby tools that show up in research libraries everywhere."
+  blurb: "Long-running contributor to Blacklight, Samvera, and a handful of smaller Ruby tools that show up in research libraries everywhere."
   tags: [ruby, open source]
   badge: oss
   url: https://github.com/jkeck
-
-- name: Side Experiments
-  blurb: "A junk drawer of weekend sketches — browser ML demos, tiny CLIs, a sourdough log written in YAML. Updated when something's worth showing."
-  tags: [various]

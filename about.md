@@ -5,11 +5,8 @@ title: About
 permalink: /about/
 ---
 
-I'm a software developer with the Stanford University Libraries. I work on various web based products at the library,
-but probably most notably [SearchWorks](http://searchworks.stanford.edu).  I'm also a core contributor the [Blacklight](http://projectblacklight.org) and
-[Hydra](http://projecthydra.org). Check out my [Portfolio](/portfolio/) to see more projects that I've been working on.
+Software engineer turned engineering manager, currently at [Ontra](https://www.ontra.ai) building contract intelligence tooling. The part of this job I find most satisfying is building teams that ship well — staying close enough to the work to understand what's actually hard, and focused enough on the people to keep the hard things solvable.
 
-This blog will be primarily random thoughts on the projects I'm working on, the technologies that I'm using, and methodologies to solving some of the problems I come across.
+Spent twelve years as an engineer in the research library and open-source world — core contributor to [Blacklight](http://projectblacklight.org) and [Samvera](https://samvera.org) (formerly Hydra), and part of the digital infrastructure team at Stanford Libraries, where I worked on [SearchWorks](https://searchworks.stanford.edu) and a handful of other projects. That world is obsessive about data quality, interoperability, and building things in the open, and those instincts stuck.
 
-I don't currently plan on enabling commenting on the site but if you have any questions about any of the posts on the site
-please feel free to contact me via email.
+This site is where I write about things I'm working on or thinking through. [GitHub](https://github.com/jkeck) and [LinkedIn](https://www.linkedin.com/in/jessiekeck) are the best places to find me.

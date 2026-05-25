@@ -19,7 +19,9 @@ No worktrees. Edits go directly to `master`.
 |---|---|
 | `index.html` | Home page — standalone (`layout: null`), all CSS inline |
 | `_data/now.yml` | Now page + ticker content — **primary content file** |
-| `_data/projects.yml` | Projects list on home page |
+| `_data/projects.yml` | Home sidebar projects (Now section — 2 entries) |
+| `_data/open_source.yml` | OSS history entries on `/projects/` page |
+| `_data/experiments.yml` | Side experiments on `/projects/` page |
 | `_posts/` | Blog posts (Markdown, Jekyll naming convention) |
 | `_includes/head.html` | `<head>` with fonts, CSS tokens, shared styles |
 | `_includes/site-nav.html` | Inner-page nav strip (used by all non-home layouts) |
@@ -28,6 +30,7 @@ No worktrees. Edits go directly to `master`.
 | `_layouts/page.html` | Generic page layout (extends default) |
 | `blog/index.html` | Blog archive page |
 | `now.html` | /now page — rendered from `_data/now.yml` |
+| `projects.html` | /projects/ page — three sections: Now, Open Source, Experiments |
 | `about.md` | About page |
 
 ## Design system
@@ -82,21 +85,32 @@ summary: "TL;DR sentence here."
 
 ---
 
-### Update the projects list
+### Update the projects page
 
-Edit `_data/projects.yml`. Each entry:
+The `/projects/` page has three sections, each driven by a data file:
+
+| Section | Data file | When to edit |
+|---|---|---|
+| Now | `_data/projects.yml` | Current / active work — also appears on home sidebar |
+| Open Source | `_data/open_source.yml` | OSS history (Blacklight, Samvera, etc.) |
+| Experiments | `_data/experiments.yml` | Side projects and demos |
+
+**Adding to Now** (`_data/projects.yml`) — ask for: name, blurb, tags, URL (optional), badge (`live` or `oss`, optional). This also updates the home page sidebar.
+
+**Adding an experiment** (`_data/experiments.yml`) — ask for: name, blurb, tags, URL to the demo (optional), URL to the related blog post (optional).
+
+Entry format for all three files:
 
 ```yaml
 - name: Project Name
   blurb: One or two sentence description.
-  tags:
-    - tag one
-    - tag two
-  url: https://... # optional — omit if no public URL
-  badge: live      # optional — "live" (green) or "oss" (amber)
+  tags: [tag one, tag two]
+  url: https://...    # optional — live demo or project site
+  source: https://... # optional — GitHub link (open_source.yml)
+  post: /YYYY/MM/DD/slug/  # optional — related post (experiments.yml)
+  badge: live         # optional — "live" (green) or "oss" (amber); projects.yml only
+  note: "formerly X"  # optional — shown inline next to name (open_source.yml)
 ```
-
-When the user asks to add or update a project, ask for: name, blurb, tags, URL (optional), and whether it has a `live` or `oss` badge (or none).
 
 ---
 

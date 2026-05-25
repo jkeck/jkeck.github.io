@@ -1,0 +1,134 @@
+---
+layout: default
+title: Projects
+permalink: /projects/
+---
+<style>
+  .projects-page { max-width: 800px; margin: 0 auto; padding: 40px 36px 80px; }
+
+  .projects-masthead {
+    padding-bottom: 16px; margin-bottom: 36px; border-bottom: 2px double var(--rule);
+  }
+  .projects-masthead h1 {
+    font-family: var(--display); font-size: 36px; font-weight: 500;
+    letter-spacing: -0.02em; color: var(--text);
+  }
+
+  .projects-section { margin-bottom: 44px; }
+  .section-label {
+    font-family: var(--mono); font-size: 10px; color: var(--amber);
+    letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 4px;
+  }
+  .section-rule { border: none; border-top: 1px solid var(--rule2); margin-bottom: 0; }
+
+  .project-row { padding: 16px 0; border-bottom: 1px solid var(--rule2); }
+  .project-header { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .project-name {
+    font-family: var(--display); font-size: 20px; font-weight: 500;
+    color: var(--text); letter-spacing: -0.005em; text-decoration: none;
+  }
+  a.project-name:hover { color: var(--amber); }
+  .project-note {
+    font-family: var(--mono); font-size: 10px; color: var(--dim);
+    letter-spacing: 0.06em; margin-left: 2px;
+  }
+  .badge { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; padding: 2px 6px; border-radius: 3px; }
+  .badge-live { background: rgba(141,184,132,0.15); color: var(--ok);    border: 1px solid rgba(141,184,132,0.3); }
+  .badge-oss  { background: rgba(212,165,116,0.12); color: var(--amber); border: 1px solid rgba(212,165,116,0.25); }
+
+  .project-blurb {
+    margin-top: 5px;
+    font-family: var(--serif); font-size: 15px; line-height: 1.6; color: var(--text-sub);
+  }
+  .project-footer { margin-top: 8px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .project-tags {
+    font-family: var(--mono); font-size: 10px; color: var(--dim); letter-spacing: 0.06em;
+  }
+  .project-links { display: flex; gap: 12px; margin-left: auto; }
+  .project-link {
+    font-family: var(--mono); font-size: 10px; color: var(--muted);
+    text-decoration: none; letter-spacing: 0.06em;
+  }
+  .project-link:hover { color: var(--amber); }
+
+  @media (max-width: 768px) {
+    .projects-page { padding: 28px 20px 60px; }
+    .projects-masthead h1 { font-size: 28px; }
+    .project-links { margin-left: 0; }
+  }
+</style>
+<div class="projects-page">
+
+  <div class="projects-masthead">
+    <h1>Projects</h1>
+  </div>
+
+  <div class="projects-section">
+    <div class="section-label">Now</div>
+    <hr class="section-rule">
+    {% for project in site.data.projects %}
+    <div class="project-row">
+      <div class="project-header">
+        {% if project.url %}
+        <a class="project-name" href="{{ project.url }}" target="_blank" rel="noopener">{{ project.name }}</a>
+        {% else %}
+        <span class="project-name">{{ project.name }}</span>
+        {% endif %}
+        {% if project.badge %}<span class="badge badge-{{ project.badge }}">{{ project.badge | upcase }}</span>{% endif %}
+      </div>
+      <p class="project-blurb">{{ project.blurb }}</p>
+      <div class="project-footer">
+        <span class="project-tags">{{ project.tags | join: " · " | upcase }}</span>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="projects-section">
+    <div class="section-label">Open Source</div>
+    <hr class="section-rule">
+    {% for project in site.data.open_source %}
+    <div class="project-row">
+      <div class="project-header">
+        {% if project.url %}
+        <a class="project-name" href="{{ project.url }}" target="_blank" rel="noopener">{{ project.name }}</a>
+        {% else %}
+        <span class="project-name">{{ project.name }}</span>
+        {% endif %}
+        {% if project.note %}<span class="project-note">{{ project.note }}</span>{% endif %}
+      </div>
+      <p class="project-blurb">{{ project.blurb }}</p>
+      <div class="project-footer">
+        <span class="project-tags">{{ project.tags | join: " · " | upcase }}</span>
+        <div class="project-links">
+          {% if project.source %}<a class="project-link" href="{{ project.source }}" target="_blank" rel="noopener">↗ source</a>{% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="projects-section">
+    <div class="section-label">Experiments</div>
+    <hr class="section-rule">
+    {% for project in site.data.experiments %}
+    <div class="project-row">
+      <div class="project-header">
+        {% if project.url %}
+        <a class="project-name" href="{{ project.url }}">{{ project.name }}</a>
+        {% else %}
+        <span class="project-name">{{ project.name }}</span>
+        {% endif %}
+      </div>
+      <p class="project-blurb">{{ project.blurb }}</p>
+      <div class="project-footer">
+        <span class="project-tags">{{ project.tags | join: " · " | upcase }}</span>
+        <div class="project-links">
+          {% if project.post %}<a class="project-link" href="{{ project.post }}">↗ post</a>{% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>

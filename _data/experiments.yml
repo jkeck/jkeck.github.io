@@ -1,0 +1,5 @@
+- name: Image Classification in the Browser
+  blurb: "A webcam-driven demo using ml5.js and MobileNet — train a classifier in the browser with your own labels, no server required."
+  url: /classify
+  post: /2020/05/13/image-classification-on-the-web/
+  tags: [javascript, machine learning, ml5]
