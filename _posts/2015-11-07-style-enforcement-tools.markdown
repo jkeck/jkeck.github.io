@@ -4,6 +4,7 @@ title:  "Using Style Enforcement Tools"
 date:   2015-11-07 20:00:00
 header: '/images/rubocop-linter.png'
 tags: RuboCop SCSS-Lint JSHint Testing
+summary: "Notes on integrating RuboCop into a long-running Rails codebase without setting the team on fire. Pick your battles; let auto-correct fight most of them."
 ---
 
 <blockquote>

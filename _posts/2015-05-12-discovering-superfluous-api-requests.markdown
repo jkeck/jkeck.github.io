@@ -4,6 +4,7 @@ title:  "Discovering superfluous API requests in your test suite"
 date:   2015-05-13 18:00:00
 tags: RSpec APIs Testing
 header: '/images/api-requests-bg.png'
+summary: "How to instrument a Rails test suite to flag accidental network calls. Saved us minutes per CI run and surfaced two genuine bugs."
 ---
 
 *NOTE: this code assumes RSpec but the principles still apply in other test frameworks.*

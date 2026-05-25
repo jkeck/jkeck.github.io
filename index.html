@@ -1,20 +1,332 @@
 ---
-layout: default
+layout: null
 ---
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <title>{{ site.title }}</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="{{ site.description }}">
+  <link rel="canonical" href="{{ site.url }}">
+  <link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="{{ '/feed.xml' | prepend: site.baseurl | prepend: site.url }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,900;1,9..144,400;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-<div class="home">
+    :root {
+      --bg:       #1a1714;
+      --panel:    #221f1a;
+      --panel2:   #2a2620;
+      --rule:     #3a342c;
+      --rule2:    #2e2922;
+      --text:     #e8e1d4;
+      --text-sub: #b8ad99;
+      --muted:    #8a8070;
+      --dim:      #5e574c;
+      --amber:    #d4a574;
+      --ok:       #8db884;
+      --serif:    "Newsreader", Georgia, serif;
+      --display:  "Fraunces", "Newsreader", Georgia, serif;
+      --sans:     "Inter", system-ui, sans-serif;
+      --mono:     "IBM Plex Mono", ui-monospace, monospace;
+    }
+    [data-theme="light"] {
+      --bg:       #f5f0ea;
+      --panel:    #ede8e1;
+      --panel2:   #e5dfd7;
+      --rule:     #c0b8af;
+      --rule2:    #d0c8c0;
+      --text:     #2a2520;
+      --text-sub: #5a5248;
+      --muted:    #8a8078;
+      --dim:      #a09890;
+    }
 
-  <h1>Blog posts</h1>
+    html, body { background: var(--bg); color: var(--text); font-family: var(--serif); min-height: 100vh; }
 
-  <ul class="posts">
-    {% for post in site.posts %}
-      <li>
-        <span class="post-date">{{ post.date | date: "%b %-d, %Y" }}</span>
-        <a class="post-link" href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
-      </li>
-    {% endfor %}
-  </ul>
+    .site { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; min-height: 100vh; }
 
-  <p class="rss-subscribe">subscribe <a href="{{ "/feed.xml" | prepend: site.baseurl }}">via RSS</a></p>
+    /* Meta strip */
+    .meta-strip {
+      padding: 10px 36px;
+      display: flex; align-items: center; gap: 14px;
+      border-bottom: 1px solid var(--rule2);
+      font-family: var(--mono); font-size: 10.5px; color: var(--muted); letter-spacing: 0.1em;
+    }
+    .sep   { color: var(--dim); }
+    .space { flex: 1; }
+
+    .cmdk-hint {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 5px 8px 5px 10px;
+      border: 1px solid var(--rule); border-radius: 6px;
+      font-family: var(--sans); font-size: 12px; color: var(--text-sub);
+      cursor: default; user-select: none;
+    }
+    .cmdk-hint .key {
+      font-family: var(--mono); font-size: 10.5px;
+      background: var(--panel2); color: var(--text);
+      padding: 2px 6px; border-radius: 3px; border: 1px solid var(--rule);
+    }
+
+    .theme-toggle {
+      all: unset; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 6px;
+      border: 1px solid var(--rule); background: var(--panel);
+      padding: 3px; border-radius: 999px;
+    }
+    .pip { width: 22px; height: 22px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-family: var(--mono); }
+    .pip-on  { background: var(--amber); color: var(--bg); }
+    .pip-off { color: var(--muted); padding: 0 6px 0 2px; }
+
+    /* Masthead */
+    .masthead {
+      padding: 36px 36px 28px;
+      display: grid; grid-template-columns: 110px 1fr auto; gap: 24px; align-items: center;
+      border-bottom: 2px double var(--rule);
+    }
+    .avatar {
+      width: 96px; height: 96px; border-radius: 50%;
+      border: 1.5px solid var(--amber); background: var(--panel);
+      display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;
+    }
+    .monogram {
+      font-family: var(--display); font-size: 44px; font-style: italic; font-weight: 500;
+      color: var(--amber); letter-spacing: -0.04em; padding-right: 4px; padding-bottom: 4px; user-select: none;
+    }
+    .wordmark h1 {
+      font-family: var(--display); font-size: 64px; font-weight: 500;
+      letter-spacing: -0.025em; line-height: 0.95; color: var(--text);
+    }
+    .wordmark .subtitle {
+      font-family: var(--serif); font-style: italic; font-size: 17px;
+      color: var(--text-sub); margin-top: 10px; letter-spacing: 0.005em;
+    }
+    .contact-col {
+      font-family: var(--mono); font-size: 10.5px; color: var(--muted);
+      letter-spacing: 0.06em; text-align: right; line-height: 1.8;
+    }
+    .contact-col .lbl { color: var(--dim); }
+    .contact-col .val { color: var(--text); }
+    .contact-col a    { color: var(--amber); text-decoration: none; }
+    .contact-col a:hover { text-decoration: underline; }
+
+    /* Now ticker */
+    .now-ticker {
+      padding: 9px 36px;
+      display: flex; align-items: center; gap: 16px;
+      background: var(--panel); border-bottom: 1px solid var(--rule2);
+      font-family: var(--mono); font-size: 11px; color: var(--text-sub); letter-spacing: 0.04em;
+    }
+    .now-signal { display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .now-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); flex-shrink: 0; box-shadow: 0 0 0 3px rgba(141,184,132,0.14); }
+    .now-label { color: var(--amber); font-weight: 500; }
+    .now-date  { color: var(--dim); }
+    .now-dash  { color: var(--dim); flex-shrink: 0; }
+    .now-blurb { color: var(--text); font-family: var(--serif); font-size: 14px; font-style: italic; }
+    .now-link  { margin-left: auto; color: var(--dim); text-decoration: none; flex-shrink: 0; }
+    .now-link:hover { color: var(--amber); }
+
+    /* Body */
+    .body-grid { flex: 1; display: grid; grid-template-columns: 1.4fr 1fr; gap: 40px; padding: 32px 36px; }
+
+    .col-head { display: flex; align-items: baseline; gap: 10px; padding-bottom: 10px; margin-bottom: 6px; border-bottom: 1px solid var(--rule); }
+    .col-num   { font-family: var(--mono); font-size: 10.5px; color: var(--amber); letter-spacing: 0.14em; }
+    .col-title { font-family: var(--display); font-size: 18px; font-weight: 500; color: var(--text); letter-spacing: -0.005em; }
+    .col-sub   { font-family: var(--mono); font-size: 10px; color: var(--dim); letter-spacing: 0.08em; margin-left: auto; }
+
+    /* Posts */
+    .post-row { padding: 14px 0; border-bottom: 1px solid var(--rule2); }
+    .post-headline { display: flex; align-items: baseline; gap: 12px; }
+    .post-date { font-family: var(--mono); font-size: 10.5px; color: var(--muted); letter-spacing: 0.06em; min-width: 92px; flex-shrink: 0; }
+    .post-title { font-family: var(--display); font-size: 22px; font-weight: 500; letter-spacing: -0.01em; color: var(--text); line-height: 1.2; }
+    .post-title a { color: inherit; text-decoration: none; }
+    .post-title a:hover { color: var(--amber); }
+    .post-summary { margin-top: 6px; padding-left: 104px; display: flex; gap: 10px; align-items: flex-start; }
+    .tldr { font-family: var(--mono); font-size: 9.5px; color: var(--amber); letter-spacing: 0.12em; padding: 2px 5px; border: 1px solid rgba(212,165,116,0.33); border-radius: 3px; margin-top: 2px; white-space: nowrap; flex-shrink: 0; }
+    .post-summary p { font-family: var(--serif); font-style: italic; font-size: 14px; color: var(--text-sub); line-height: 1.55; }
+    .archive-link { display: inline-block; margin-top: 14px; font-family: var(--serif); font-style: italic; font-size: 14px; color: var(--amber); text-decoration: none; }
+    .archive-link:hover { text-decoration: underline; }
+
+    /* Side */
+    .side-col { border-left: 1px solid var(--rule2); padding-left: 32px; }
+    .project  { padding: 6px 0; }
+    .project-header { display: flex; align-items: baseline; gap: 8px; }
+    .project-name  { font-family: var(--display); font-size: 17px; font-weight: 600; color: var(--text); letter-spacing: -0.005em; text-decoration: none; }
+    .project-name:hover { color: var(--amber); }
+    .project-blurb { margin-top: 4px; font-family: var(--serif); font-size: 13.5px; line-height: 1.5; color: var(--text-sub); }
+    .project-tags  { margin-top: 6px; font-family: var(--mono); font-size: 10px; color: var(--dim); letter-spacing: 0.06em; }
+    .badge      { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; padding: 2px 6px; border-radius: 3px; }
+    .badge-live { background: rgba(141,184,132,0.15); color: var(--ok);    border: 1px solid rgba(141,184,132,0.3); }
+    .badge-oss  { background: rgba(212,165,116,0.12); color: var(--amber); border: 1px solid rgba(212,165,116,0.25); }
+    .about-section { margin-top: 24px; }
+    .about-text { font-family: var(--serif); font-size: 14.5px; line-height: 1.6; color: var(--text-sub); }
+    .about-text strong { color: var(--text); font-weight: 400; }
+
+    /* Footer */
+    .site-footer {
+      padding: 12px 36px; border-top: 2px double var(--rule);
+      display: flex; align-items: center;
+      font-family: var(--mono); font-size: 10.5px; color: var(--dim); letter-spacing: 0.08em;
+    }
+    .site-footer a { margin-left: auto; color: var(--muted); text-decoration: none; }
+    .site-footer a:hover { color: var(--amber); }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .meta-strip { padding: 8px 20px; gap: 10px; }
+      .hide-mobile { display: none; }
+      .masthead { padding: 24px 20px 20px; grid-template-columns: 80px 1fr; grid-template-rows: auto auto; gap: 16px; }
+      .avatar { width: 72px; height: 72px; }
+      .monogram { font-size: 34px; }
+      .wordmark h1 { font-size: 42px; }
+      .wordmark .subtitle { font-size: 14px; }
+      .contact-col { grid-column: 1 / -1; text-align: left; font-size: 10px; }
+      .now-ticker { padding: 8px 20px; flex-wrap: wrap; gap: 8px; }
+      .now-link { margin-left: 0; }
+      .body-grid { grid-template-columns: 1fr; padding: 24px 20px; gap: 32px; }
+      .side-col { border-left: none; padding-left: 0; border-top: 1px solid var(--rule2); padding-top: 24px; }
+      .post-headline { flex-direction: column; gap: 4px; }
+      .post-title { font-size: 18px; }
+      .post-summary { padding-left: 0; margin-top: 8px; }
+      .site-footer { padding: 12px 20px; }
+    }
+  </style>
+</head>
+<body>
+<script>
+  (function() {
+    var t = localStorage.getItem('jk-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', t);
+  }());
+</script>
+<div class="site">
+
+  <div class="meta-strip">
+    <span class="hide-mobile">EST. 2014</span>
+    <span class="sep hide-mobile">·</span>
+    <span class="hide-mobile">VOL. {{ site.time | date: "%Y" | minus: 2014 }} · ISS. {{ site.time | date: "%m" }}</span>
+    <span class="sep hide-mobile">·</span>
+    <span>{{ site.time | date: "%a %-d %b %Y" | upcase }}</span>
+    <span class="space"></span>
+    <div class="cmdk-hint" title="⌘K command palette — coming soon">
+      <span class="key">⌘ K</span>
+    </div>
+    <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()" aria-label="Toggle color theme">
+      <span class="pip pip-on"  id="pip-dark" >☾</span>
+      <span class="pip pip-off" id="pip-light" style="padding:0 6px 0 2px">☀</span>
+    </button>
+  </div>
+
+  <header class="masthead">
+    <div class="avatar"><span class="monogram">JK</span></div>
+    <div class="wordmark">
+      <h1>{{ site.title }}</h1>
+      <p class="subtitle">{{ site.subtitle }}</p>
+    </div>
+    <div class="contact-col">
+      <div><span class="lbl">EMAIL &nbsp;</span><span class="val">{{ site.email }}</span></div>
+      <div><span class="lbl">GITHUB </span><a href="https://github.com/{{ site.github }}" target="_blank" rel="noopener">{{ site.github }}</a></div>
+      <div><span class="lbl">RESUME </span><a href="/resume.pdf">resume.pdf →</a></div>
+    </div>
+  </header>
+
+  <div class="now-ticker">
+    <span class="now-signal">
+      <span class="now-dot"></span>
+      <span class="now-label">NOW</span>
+      <span class="now-date">{{ site.data.now.date }}</span>
+    </span>
+    <span class="now-dash">—</span>
+    <span class="now-blurb">{{ site.data.now.blurb }}</span>
+    <a class="now-link" href="/now">↗ /now</a>
+  </div>
+
+  <main class="body-grid">
+    <section>
+      <div class="col-head">
+        <span class="col-num">01</span>
+        <span class="col-title">Writing</span>
+        <span class="col-sub">RECENT · WITH TL;DR</span>
+      </div>
+      {% for post in site.posts limit:4 %}
+      <article class="post-row">
+        <div class="post-headline">
+          <span class="post-date">{{ post.date | date: "%b %-d, %Y" | upcase }}</span>
+          <h2 class="post-title"><a href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a></h2>
+        </div>
+        {% if post.summary %}
+        <div class="post-summary">
+          <span class="tldr">TL;DR</span>
+          <p>{{ post.summary }}</p>
+        </div>
+        {% endif %}
+      </article>
+      {% endfor %}
+      <a class="archive-link" href="/blog/">↘ archive · {{ site.posts | size }} posts</a>
+    </section>
+
+    <aside class="side-col">
+      <div class="col-head">
+        <span class="col-num">02</span>
+        <span class="col-title">Projects</span>
+      </div>
+      {% for project in site.data.projects %}
+      <div class="project">
+        <div class="project-header">
+          {% if project.url %}
+          <a class="project-name" href="{{ project.url }}" target="_blank" rel="noopener">{{ project.name }}</a>
+          {% else %}
+          <span class="project-name">{{ project.name }}</span>
+          {% endif %}
+          {% if project.badge %}
+          <span class="badge badge-{{ project.badge }}">{{ project.badge | upcase }}</span>
+          {% endif %}
+        </div>
+        <p class="project-blurb">{{ project.blurb }}</p>
+        <div class="project-tags">{{ project.tags | join: " · " | upcase }}</div>
+      </div>
+      {% endfor %}
+
+      <div class="about-section">
+        <div class="col-head">
+          <span class="col-num">03</span>
+          <span class="col-title">About</span>
+        </div>
+        <p class="about-text">Twelve years in research-library and open-source land — Blacklight, Hydra, Stanford Libraries — as an engineer. Now an <strong>engineering manager at Ontra</strong>. Happiest at the seam between crusty data and modern web stacks.</p>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="site-footer">
+    <a href="{{ '/feed.xml' | prepend: site.baseurl | prepend: site.url }}">↗ /feed.xml</a>
+  </footer>
 
 </div>
+<script>
+  function syncToggle(theme) {
+    var d = document.getElementById('pip-dark');
+    var l = document.getElementById('pip-light');
+    if (!d) return;
+    if (theme === 'light') {
+      d.className = 'pip pip-off'; d.style.padding = '0 0 0 6px';
+      l.className = 'pip pip-on';  l.style.padding = '';
+    } else {
+      d.className = 'pip pip-on';  d.style.padding = '';
+      l.className = 'pip pip-off'; l.style.padding = '0 6px 0 2px';
+    }
+  }
+  function toggleTheme() {
+    var el = document.documentElement;
+    var next = el.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    el.setAttribute('data-theme', next);
+    localStorage.setItem('jk-theme', next);
+    syncToggle(next);
+  }
+  syncToggle(document.documentElement.getAttribute('data-theme'));
+</script>
+</body>
+</html>

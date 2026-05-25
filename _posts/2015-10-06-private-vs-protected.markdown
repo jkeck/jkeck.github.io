@@ -4,6 +4,7 @@ title:  "Public, Private, and Protected Methods"
 date:   2015-10-06 22:00:00
 header: '/images/private-vs-protected.png'
 tags: Ruby Design
+summary: "A short tour of Ruby method visibility — what each modifier actually does at the call-site, and why 'protected' is the one you almost never reach for."
 ---
 
 <blockquote>

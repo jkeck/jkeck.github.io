@@ -1,9 +1,13 @@
-# Site settings
-title: Jessie Keck ((( Random Musings )))
-email: info@jessiekeck.com
-description: "Random posts about software, development process, useful techniques, and other interesting things I find in the world."
+# Site identity
+title: Jessie Keck
+subtitle: "engineering manager · field notes from the working journal"
+description: "Engineering manager, formerly engineer. Writing about software, systems, and side projects."
+url: "https://jessiekeck.com"
 baseurl: ""
-url: "http://jessiekeck.com"
+
+# Contact
+email: info@jessiekeck.com
+github: jkeck
 
 # Build settings
 markdown: kramdown

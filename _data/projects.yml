@@ -1,0 +1,14 @@
+- name: Personal Pi AI Assistant
+  blurb: "A small Pi in my closet hosting an LLM-backed agent — it routes the contact form, drafts replies for me to review, and runs a few other quiet errands."
+  tags: [raspberry pi, llm, self-hosted]
+  badge: live
+
+- name: OSS Contributions
+  blurb: "Long-running contributor to Blacklight, Hydra, and a handful of smaller Ruby tools that show up in research libraries everywhere."
+  tags: [ruby, open source]
+  badge: oss
+  url: https://github.com/jkeck
+
+- name: Side Experiments
+  blurb: "A junk drawer of weekend sketches — browser ML demos, tiny CLIs, a sourdough log written in YAML. Updated when something's worth showing."
+  tags: [various]

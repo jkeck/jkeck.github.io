@@ -6,6 +6,7 @@ tags:
   - Machine Learning
   - Javascript
   - Experiments
+summary: "A 50-line p5 sketch that runs MobileNet client-side. Surprising how far the browser ML toolkit has come — and where it still falls down."
 ---
 
 I have been dreaming up plans for a few home/side projects, for some time, that will require the ability to identify the person actively looking at the device. This setup could be useful for adding personalization to some homemade smart devices such as a display for personalized artwork or individual dashboards on a [Smart Mirror](https://www.reddit.com/r/SmartMirror/). In many instances the basic smart device can be accomplished relatively easily using a web application deployed to a [Raspberry Pi](https://raspberrypi.org) connected to a display. This kind of setup allows for some really powerful implementations. Adding a webcam to the project and taking the image classification to the web application itself presents some nice simplifications to building some of these projects (e.g. smooth css transitions between content when the result of the image classification changes).
