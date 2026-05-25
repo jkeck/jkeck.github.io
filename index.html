@@ -10,6 +10,9 @@ layout: null
   <meta name="description" content="{{ site.description }}">
   <link rel="canonical" href="{{ site.url }}">
   <link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="{{ '/feed.xml' | prepend: site.baseurl | prepend: site.url }}">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="alternate icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,900;1,9..144,400;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -318,6 +321,8 @@ layout: null
       d.className = 'pip pip-on';  d.style.padding = '';
       l.className = 'pip pip-off'; l.style.padding = '0 6px 0 2px';
     }
+    var icon = document.querySelector('link[rel="icon"][type="image/svg+xml"]');
+    if (icon) icon.setAttribute('href', theme === 'dark' ? '/favicon-dark.svg' : '/favicon-light.svg');
   }
   function toggleTheme() {
     var el = document.documentElement;
