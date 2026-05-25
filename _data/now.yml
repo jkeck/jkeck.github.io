@@ -1,2 +1,20 @@
+# Feeds the home page ticker — keep this short
 blurb: "Wiring an AI Pi agent. Reading AI Engineering, wrapping up some chapters I'm coming back to."
 date: "MON · MAY 25"
+
+# Now page content — edit sections below to update
+updated: "May 25, 2026"
+
+work: >
+  Engineering manager at Ontra, leading a team building legal technology.
+  Current focus is on AI-assisted workflows for negotiation contracts.
+
+building:
+  - name: "AI Pi agent"
+    notes: "Wiring a Raspberry Pi with an LLM agent layer, AI-Assistant, home dashboards, and interactive feedback loops."
+
+watching_reading:
+  - title: "AI Engineering"
+    type: book
+    author: "Chip Huyen"
+    notes: "Coming back around to some of the chapters around fine-tuning."

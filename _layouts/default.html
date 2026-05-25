@@ -1,19 +1,49 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" data-theme="dark">
 
-  {% include head.html %}
+{% include head.html %}
 
-    <body>
+<body>
+<script>
+  (function() {
+    var t = localStorage.getItem('jk-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', t);
+  }());
+</script>
+<div class="site">
 
-    {% include header.html %}
+  {% include site-nav.html %}
 
-    <div class="page-content">
-      <div class="wrap">
-      {{ content }}
-      </div>
-    </div>
+  <div class="page-content">
+    {{ content }}
+  </div>
 
-    {% include footer.html %}
+  {% include footer.html %}
 
-    </body>
+</div>
+<script>
+  function syncToggle(theme) {
+    var d = document.getElementById('pip-dark');
+    var l = document.getElementById('pip-light');
+    if (!d) return;
+    if (theme === 'light') {
+      d.className = 'pip pip-off'; d.style.padding = '0 0 0 6px';
+      l.className = 'pip pip-on';  l.style.padding = '';
+    } else {
+      d.className = 'pip pip-on';  d.style.padding = '';
+      l.className = 'pip pip-off'; l.style.padding = '0 6px 0 2px';
+    }
+    var icon = document.querySelector('link[rel="icon"][type="image/svg+xml"]');
+    if (icon) icon.setAttribute('href', theme === 'dark' ? '/favicon-dark.svg' : '/favicon-light.svg');
+  }
+  function toggleTheme() {
+    var el = document.documentElement;
+    var next = el.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    el.setAttribute('data-theme', next);
+    localStorage.setItem('jk-theme', next);
+    syncToggle(next);
+  }
+  syncToggle(document.documentElement.getAttribute('data-theme'));
+</script>
+</body>
 </html>

@@ -1,27 +1,70 @@
 ---
 layout: default
 ---
-<div class="post">
-
-  <header class="post-header">
-    <h1>{{ page.title }}</h1>
-    <p class="meta">
-      {{ page.date | date: "%b %-d, %Y" }}
-      {% if page.author %}
-        • {{ page.author }}
-      {% endif %}
-      {% if page.meta %}
-        • {{ page.meta }}
-      {% endif %}
-      {% if page.tags %}
-        • {{ page.tags | join: ' • ' }}
-      {% endif %}
-    </p>
-
-  </header>
-
-  <article class="post-content">
-  {{ content }}
-  </article>
-
+<style>
+  .post-page { max-width: 720px; margin: 0 auto; padding: 48px 36px 80px; }
+  .post-back {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--mono); font-size: 11px; color: var(--muted);
+    text-decoration: none; letter-spacing: 0.06em; margin-bottom: 40px;
+  }
+  .post-back:hover { color: var(--amber); }
+  .post-page > h1 {
+    font-family: var(--display); font-size: 42px; font-weight: 500;
+    letter-spacing: -0.02em; line-height: 1.1; color: var(--text); margin-bottom: 14px;
+  }
+  .post-page .post-meta {
+    font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 0.06em;
+    margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1px solid var(--rule2);
+  }
+  .post-body { font-family: var(--serif); font-size: 18px; line-height: 1.75; color: var(--text-sub); }
+  .post-body > p { margin-bottom: 1.4em; }
+  .post-body h2 {
+    font-family: var(--display); font-size: 26px; font-weight: 500;
+    color: var(--text); margin: 2.2em 0 0.6em; letter-spacing: -0.01em;
+  }
+  .post-body h3 {
+    font-family: var(--display); font-size: 20px; font-weight: 500;
+    color: var(--text); margin: 1.8em 0 0.5em;
+  }
+  .post-body h4 {
+    font-family: var(--sans); font-size: 13px; font-weight: 600;
+    color: var(--muted); margin: 1.6em 0 0.4em; letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .post-body a { color: var(--amber); text-decoration: none; }
+  .post-body a:hover { text-decoration: underline; }
+  .post-body strong { color: var(--text); font-weight: 500; }
+  .post-body code {
+    font-family: var(--mono); font-size: 0.84em;
+    background: var(--panel); color: var(--text);
+    padding: 2px 6px; border-radius: 3px; border: 1px solid var(--rule);
+  }
+  .post-body pre {
+    background: var(--panel); border: 1px solid var(--rule); border-radius: 6px;
+    padding: 20px 24px; overflow-x: auto; margin: 1.6em 0;
+  }
+  .post-body pre code { background: none; border: none; padding: 0; font-size: 13px; line-height: 1.6; }
+  .post-body blockquote {
+    border-left: 2px solid var(--amber); padding: 4px 0 4px 20px;
+    margin: 1.6em 0; color: var(--text-sub); font-style: italic;
+  }
+  .post-body ul, .post-body ol { padding-left: 1.6em; margin-bottom: 1.4em; }
+  .post-body li { margin-bottom: 0.4em; }
+  .post-body img { max-width: 100%; border-radius: 4px; margin: 1.2em 0; display: block; }
+  .post-body hr { border: none; border-top: 1px solid var(--rule2); margin: 2.5em 0; }
+  @media (max-width: 768px) {
+    .post-page { padding: 32px 20px 60px; }
+    .post-page > h1 { font-size: 30px; }
+    .post-body { font-size: 16px; }
+  }
+</style>
+<div class="post-page">
+  <a class="post-back" href="/blog/">← writing</a>
+  <h1>{{ page.title }}</h1>
+  <div class="post-meta">
+    {{ page.date | date: "%B %-d, %Y" | upcase }}{% if page.tags %} · {{ page.tags | join: ' · ' | upcase }}{% endif %}
+  </div>
+  <div class="post-body">
+    {{ content }}
+  </div>
 </div>
