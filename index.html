@@ -67,7 +67,7 @@ layout: null
       padding: 5px 8px 5px 10px;
       border: 1px solid var(--rule); border-radius: 6px;
       font-family: var(--sans); font-size: 12px; color: var(--text-sub);
-      cursor: default; user-select: none;
+      cursor: pointer; user-select: none;
     }
     .cmdk-hint .key {
       font-family: var(--mono); font-size: 10.5px;
@@ -215,7 +215,7 @@ layout: null
     <span class="sep hide-mobile">·</span>
     <span>{{ site.time | date: "%a %-d %b %Y" | upcase }}</span>
     <span class="space"></span>
-    <div class="cmdk-hint" title="⌘K command palette — coming soon">
+    <div class="cmdk-hint" role="button" tabindex="0" aria-label="Open command palette">
       <span class="key">⌘ K</span>
     </div>
     <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()" aria-label="Toggle color theme">
@@ -334,5 +334,6 @@ layout: null
   }
   syncToggle(document.documentElement.getAttribute('data-theme'));
 </script>
+{% include cmdk.html %}
 </body>
 </html>

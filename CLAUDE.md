@@ -114,6 +114,30 @@ Entry format for all three files:
 
 ---
 
+### Update the ⌘K command palette
+
+All palette code lives in `_includes/cmdk.html`. It is included in both `index.html` and `_layouts/default.html` — no layout changes needed when editing it.
+
+**Adding a nav item** — extend the `NAV` array in the JS:
+
+```js
+{ label: 'Label', path: '/path/', hint: '/path' },
+```
+
+`label` is shown to the user and matched against search input. `hint` is the path displayed on the right and also matched. Both are searched case-insensitively.
+
+**Adding a TTY easter egg command** — extend the `TTY` object:
+
+```js
+'command': 'output text shown to the user',
+```
+
+The key is the exact string the user must type (lowercase). The value is the output — use `\n` for line breaks, `pre-wrap` is applied. To render the command's output in red (error style), set the key to match the `sudo` branch check in `render()`, or add a new condition there. `clear` is a special reserved key that resets the input.
+
+**Dynamic data** — post titles/dates and the site uptime year are injected via the `#cmdk-data` JSON block at the top of the include using Liquid. If you need to inject additional site data (e.g. project names), add it there and read it from `siteData` in the JS rather than hardcoding.
+
+---
+
 ## Constraints
 
 - No placeholder or hardcoded content (fake stats, lorem ipsum, etc.) without a plan to make it real.
