@@ -85,30 +85,6 @@ permalink: /projects/
   </div>
 
   <div class="projects-section">
-    <div class="section-label">Open Source</div>
-    <hr class="section-rule">
-    {% for project in site.data.open_source %}
-    <div class="project-row">
-      <div class="project-header">
-        {% if project.url %}
-        <a class="project-name" href="{{ project.url }}" target="_blank" rel="noopener">{{ project.name }}</a>
-        {% else %}
-        <span class="project-name">{{ project.name }}</span>
-        {% endif %}
-        {% if project.note %}<span class="project-note">{{ project.note }}</span>{% endif %}
-      </div>
-      <p class="project-blurb">{{ project.blurb }}</p>
-      <div class="project-footer">
-        <span class="project-tags">{{ project.tags | join: " · " | upcase }}</span>
-        <div class="project-links">
-          {% if project.source %}<a class="project-link" href="{{ project.source }}" target="_blank" rel="noopener">↗ source</a>{% endif %}
-        </div>
-      </div>
-    </div>
-    {% endfor %}
-  </div>
-
-  <div class="projects-section">
     <div class="section-label">Experiments</div>
     <hr class="section-rule">
     {% for project in site.data.experiments %}
@@ -125,6 +101,30 @@ permalink: /projects/
         <span class="project-tags">{{ project.tags | join: " · " | upcase }}</span>
         <div class="project-links">
           {% if project.post %}<a class="project-link" href="{{ project.post }}">↗ post</a>{% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="projects-section">
+    <div class="section-label">Open Source Highlights</div>
+    <hr class="section-rule">
+    {% for project in site.data.open_source %}
+    <div class="project-row">
+      <div class="project-header">
+        {% if project.url %}
+        <a class="project-name" href="{{ project.url }}" target="_blank" rel="noopener">{{ project.name }}</a>
+        {% else %}
+        <span class="project-name">{{ project.name }}</span>
+        {% endif %}
+        {% if project.note %}<span class="project-note">{{ project.note }}</span>{% endif %}
+      </div>
+      <p class="project-blurb">{{ project.blurb }}</p>
+      <div class="project-footer">
+        <span class="project-tags">{{ project.tags | join: " · " | upcase }}</span>
+        <div class="project-links">
+          {% if project.source %}<a class="project-link" href="{{ project.source }}" target="_blank" rel="noopener">↗ source</a>{% endif %}
         </div>
       </div>
     </div>

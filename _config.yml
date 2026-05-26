@@ -8,6 +8,7 @@ baseurl: ""
 # Contact
 email: info@jessiekeck.com
 github: jkeck
+linkedin: jessiekeck
 
 # Build settings
 markdown: kramdown
