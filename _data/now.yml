@@ -1,9 +1,9 @@
 # Feeds the home page ticker — keep this short
-blurb: "Wiring an AI Pi agent. Reading AI Engineering, wrapping up some chapters I'm coming back to."
-date: "TUE · MAY 26"
+blurb: "Wiring an AI Pi agent, fighting with Twilio to get SMS integration. Learning Astro for some side projects."
+date: "THU · JUN 4"
 
 # Now page content — edit sections below to update
-updated: "May 26, 2026"
+updated: "Jun 4, 2026"
 
 work: >
   Engineering manager at Ontra, leading a team building legal technology.
@@ -11,10 +11,10 @@ work: >
 
 building:
   - name: "AI Pi agent"
-    notes: "Wiring a Raspberry Pi with an LLM agent layer, AI-Assistant, home dashboards, and interactive feedback loops."
+    notes: "Wiring a Raspberry Pi with an LLM agent layer, AI-Assistant, home dashboards, and improving via feedback loops."
 
 watching_reading:
-  - title: "Jury Duty (Company Retreat)"
+  - title: "Your Friends & Neighbors"
     type: show
   - title: "AI Engineering"
     type: book
