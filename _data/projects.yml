@@ -1,5 +1,5 @@
 - name: Personal Pi AI Assistant
-  blurb: "A small Pi in my closet hosting an LLM-backed agent — it routes the contact form, drafts replies for me to review, and runs a few other quiet errands."
+  blurb: "A small Pi in my closet hosting an LLM-backed agent — it has remote agents for this website, and runs a few other quiet errands."
   tags: [raspberry pi, llm, self-hosted]
   badge: live
 
