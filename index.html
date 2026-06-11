@@ -123,6 +123,8 @@ layout: null
       display: flex; align-items: center; gap: 16px;
       background: var(--panel); border-bottom: 1px solid var(--rule2);
       font-family: var(--mono); font-size: 11px; color: var(--text-sub); letter-spacing: 0.04em;
+      overflow: hidden;
+      transition: background 0.4s ease, border-color 0.4s ease;
     }
     .now-signal { display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; }
     .now-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); flex-shrink: 0; box-shadow: 0 0 0 3px rgba(141,184,132,0.14); }
@@ -132,6 +134,36 @@ layout: null
     .now-blurb { color: var(--text); font-family: var(--serif); font-size: 14px; font-style: italic; }
     .now-link  { margin-left: auto; color: var(--dim); text-decoration: none; flex-shrink: 0; }
     .now-link:hover { color: var(--amber); }
+
+    /* Live scrolling ticker */
+    .now-ticker.ticker-live {
+      background: color-mix(in srgb, var(--amber) 5%, var(--panel));
+      border-bottom-color: color-mix(in srgb, var(--amber) 20%, var(--rule2));
+    }
+    .now-ticker.ticker-live .now-dot {
+      background: var(--amber);
+      box-shadow: 0 0 0 3px rgba(212,165,116,0.18);
+      animation: dot-pulse 2.4s ease-in-out infinite;
+    }
+    @keyframes dot-pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.35; }
+    }
+    .ticker-scroll-wrap {
+      flex: 1; overflow: hidden; position: relative; min-width: 0;
+    }
+    .ticker-scroll-inner {
+      display: inline-flex; white-space: nowrap;
+      animation: ticker-march 32s linear infinite;
+      will-change: transform;
+    }
+    .ticker-scroll-inner .ticker-msg {
+      color: var(--text); font-family: var(--serif); font-size: 14px; font-style: italic;
+    }
+    @keyframes ticker-march {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
 
     /* Body */
     .body-grid { flex: 1; display: grid; grid-template-columns: 1.4fr 1fr; gap: 40px; padding: 32px 36px; }
@@ -237,14 +269,14 @@ layout: null
     </div>
   </header>
 
-  <div class="now-ticker">
+  <div class="now-ticker" id="now-ticker">
     <span class="now-signal">
-      <span class="now-dot"></span>
+      <span class="now-dot" id="now-dot"></span>
       <span class="now-label">NOW</span>
-      <span class="now-date">{{ site.data.now.date }}</span>
+      <span class="now-date" id="now-date">{{ site.data.now.date }}</span>
     </span>
-    <span class="now-dash">—</span>
-    <span class="now-blurb">{{ site.data.now.blurb }}</span>
+    <span class="now-dash" id="now-dash">—</span>
+    <span class="now-blurb" id="now-blurb">{{ site.data.now.blurb }}</span>
     <a class="now-link" href="/now">↗ /now</a>
   </div>
 
@@ -333,6 +365,70 @@ layout: null
     syncToggle(next);
   }
   syncToggle(document.documentElement.getAttribute('data-theme'));
+</script>
+<script type="application/json" id="ticker-data">
+{
+  "tickers": [{% for t in site.data.now.tickers %}{% unless forloop.first %},{% endunless %}{"message":{{ t.message | jsonify }},"start":{{ t.start | jsonify }},"end":{{ t.end | jsonify }}{% if t.date %},"date":{{ t.date | jsonify }}{% endif %}}{% endfor %}]
+}
+</script>
+<script>
+(function () {
+  var raw = document.getElementById('ticker-data');
+  if (!raw) return;
+  var data;
+  try { data = JSON.parse(raw.textContent); } catch (e) { return; }
+  if (!data.tickers || !data.tickers.length) return;
+
+  var now = Date.now();
+  var active = null;
+  for (var i = 0; i < data.tickers.length; i++) {
+    var t = data.tickers[i];
+    if (!t.start || !t.end) continue;
+    var s = new Date(t.start).getTime();
+    var e = new Date(t.end).getTime();
+    if (now >= s && now <= e) { active = t; break; }
+  }
+  if (!active) return;
+
+  var bar   = document.getElementById('now-ticker');
+  var date  = document.getElementById('now-date');
+  var dash  = document.getElementById('now-dash');
+  var blurb = document.getElementById('now-blurb');
+  if (!bar || !dash || !blurb) return;
+
+  bar.classList.add('ticker-live');
+  if (active.date && date) date.textContent = active.date;
+
+  // Replace static dash+blurb with scrolling marquee
+  dash.style.display = 'none';
+  blurb.style.display = 'none';
+
+  var msg = active.message;
+  var wrap  = document.createElement('div');
+  wrap.className = 'ticker-scroll-wrap';
+  var inner = document.createElement('div');
+  inner.className = 'ticker-scroll-inner';
+  [msg, msg].forEach(function (m) {
+    var span = document.createElement('span');
+    span.className = 'ticker-msg';
+    span.textContent = m;
+    inner.appendChild(span);
+  });
+  wrap.appendChild(inner);
+  dash.parentNode.insertBefore(wrap, dash.nextSibling);
+
+  // Set gap = container width so only one copy is visible at a time,
+  // then derive a consistent scroll speed (~60px/s).
+  requestAnimationFrame(function () {
+    var gap = wrap.offsetWidth;
+    var spans = inner.querySelectorAll('.ticker-msg');
+    for (var i = 0; i < spans.length; i++) spans[i].style.paddingRight = gap + 'px';
+    requestAnimationFrame(function () {
+      var travel = inner.offsetWidth / 2;
+      inner.style.animationDuration = Math.round(travel / 60) + 's';
+    });
+  });
+}());
 </script>
 {% include cmdk.html %}
 </body>

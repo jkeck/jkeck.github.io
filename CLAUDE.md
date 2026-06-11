@@ -60,6 +60,20 @@ Edit `_data/now.yml` only — the page template handles rendering.
 
 Supported `type` values for `watching_reading` items: `book`, `show`, `film`.
 
+### Set a time-bound live ticker
+
+Add an entry to the `tickers:` array in `_data/now.yml`. While active the home page bar scrolls the message and `/now` shows a live alert banner above the Work section. After the window passes both revert automatically (client-side JS, no rebuild needed).
+
+```yaml
+tickers:
+  - message: "Speaking at RailsConf today — Room 201 at 2pm, come say hi"
+    start: "2026-07-15T09:00:00-07:00"   # ISO 8601, include timezone
+    end:   "2026-07-15T17:00:00-07:00"
+    date:  "TUE · JUL 15"                # optional — overrides normal NOW date display
+```
+
+Multiple entries are supported; the first one whose window is currently active wins. Set `tickers: []` (or remove entries) to disable.
+
 ---
 
 ### Add a blog post

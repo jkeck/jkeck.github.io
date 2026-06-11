@@ -73,6 +73,43 @@ title: Now
     line-height: 1.5; color: var(--text-sub);
   }
 
+  /* Live ticker alert */
+  .now-live-alert {
+    display: none;
+    margin-bottom: 36px;
+    padding: 14px 18px;
+    background: color-mix(in srgb, var(--amber) 6%, var(--panel));
+    border: 1px solid color-mix(in srgb, var(--amber) 28%, var(--rule2));
+    border-radius: 4px;
+  }
+  .now-live-alert.is-active { display: block; }
+  .now-live-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 8px;
+  }
+  .now-live-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--amber); flex-shrink: 0;
+    box-shadow: 0 0 0 3px rgba(212,165,116,0.18);
+    animation: dot-pulse-amber 2.4s ease-in-out infinite;
+  }
+  @keyframes dot-pulse-amber {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.35; }
+  }
+  .now-live-label {
+    font-family: var(--mono); font-size: 10px; color: var(--amber);
+    letter-spacing: 0.16em; text-transform: uppercase; font-weight: 500;
+  }
+  .now-live-window {
+    font-family: var(--mono); font-size: 9.5px; color: var(--dim);
+    letter-spacing: 0.06em; margin-left: auto;
+  }
+  .now-live-message {
+    font-family: var(--serif); font-size: 16px; font-style: italic;
+    line-height: 1.55; color: var(--text);
+  }
+
   .now-footer-note {
     margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--rule2);
     font-family: var(--mono); font-size: 10px; color: var(--dim); letter-spacing: 0.06em;
@@ -92,6 +129,15 @@ title: Now
   <div class="now-masthead">
     <h1>Now</h1>
     <span class="now-updated">UPDATED {{ site.data.now.updated | upcase }}</span>
+  </div>
+
+  <div class="now-live-alert" id="now-live-alert">
+    <div class="now-live-header">
+      <span class="now-live-dot"></span>
+      <span class="now-live-label">Live</span>
+      <span class="now-live-window" id="now-live-window"></span>
+    </div>
+    <p class="now-live-message" id="now-live-message"></p>
   </div>
 
   <div class="now-section">
@@ -133,3 +179,45 @@ title: Now
   </p>
 
 </div>
+<script type="application/json" id="ticker-data-now">
+{
+  "tickers": [{% for t in site.data.now.tickers %}{% unless forloop.first %},{% endunless %}{"message":{{ t.message | jsonify }},"start":{{ t.start | jsonify }},"end":{{ t.end | jsonify }}{% if t.date %},"date":{{ t.date | jsonify }}{% endif %}}{% endfor %}]
+}
+</script>
+<script>
+(function () {
+  var raw = document.getElementById('ticker-data-now');
+  if (!raw) return;
+  var data;
+  try { data = JSON.parse(raw.textContent); } catch (e) { return; }
+  if (!data.tickers || !data.tickers.length) return;
+
+  var now = Date.now();
+  var active = null;
+  for (var i = 0; i < data.tickers.length; i++) {
+    var t = data.tickers[i];
+    if (!t.start || !t.end) continue;
+    var s = new Date(t.start).getTime();
+    var e = new Date(t.end).getTime();
+    if (now >= s && now <= e) { active = t; break; }
+  }
+  if (!active) return;
+
+  var alert   = document.getElementById('now-live-alert');
+  var msg     = document.getElementById('now-live-message');
+  var window_ = document.getElementById('now-live-window');
+  if (!alert || !msg) return;
+
+  msg.textContent = active.message;
+
+  if (active.start && active.end) {
+    var fmt = function (iso) {
+      var d = new Date(iso);
+      return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    };
+    window_.textContent = fmt(active.start) + ' – ' + fmt(active.end);
+  }
+
+  alert.classList.add('is-active');
+}());
+</script>

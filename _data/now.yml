@@ -2,6 +2,17 @@
 blurb: "Wiring an AI Pi agent, fighting with Twilio to get SMS integration. Learning Astro for some side projects."
 date: "THU · JUN 4"
 
+# Time-bound ticker overrides — active between start/end (ISO 8601, include timezone offset)
+# When active: home page bar scrolls this message; /now shows a live alert banner
+# date is optional — overrides the normal date display during the active window
+tickers: []
+# Example:
+# tickers:
+#   - message: "Speaking at RailsConf today — Room 201 at 2pm, come say hi"
+#     start: "2026-07-15T09:00:00-07:00"
+#     end:   "2026-07-15T17:00:00-07:00"
+#     date:  "TUE · JUL 15"
+
 # Now page content — edit sections below to update
 updated: "Jun 4, 2026"
 
