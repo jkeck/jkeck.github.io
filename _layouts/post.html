@@ -17,6 +17,11 @@ layout: default
     font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 0.06em;
     margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1px solid var(--rule2);
   }
+  .post-meta .post-tag {
+    color: var(--muted); text-decoration: none; letter-spacing: 0.06em;
+    transition: color 0.15s;
+  }
+  .post-meta .post-tag:hover { color: var(--amber); }
   .post-body { font-family: var(--serif); font-size: 18px; line-height: 1.75; color: var(--text-sub); }
   .post-body > p { margin-bottom: 1.4em; }
   .post-body h2 {
@@ -62,7 +67,7 @@ layout: default
   <a class="post-back" href="/blog/">← writing</a>
   <h1>{{ page.title }}</h1>
   <div class="post-meta">
-    {{ page.date | date: "%B %-d, %Y" | upcase }}{% if page.tags %} · {{ page.tags | join: ' · ' | upcase }}{% endif %}
+    {{ page.date | date: "%B %-d, %Y" | upcase }}{% if page.tags %} · {% for tag in page.tags %}<a href="/tags/?tag={{ tag | downcase }}" class="post-tag">{{ tag | upcase }}</a>{% unless forloop.last %} · {% endunless %}{% endfor %}{% endif %}
   </div>
   <div class="post-body">
     {{ content }}
