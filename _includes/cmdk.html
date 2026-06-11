@@ -1,6 +1,7 @@
 <script id="cmdk-data" type="application/json">{
   "uptime": {{ site.time | date: "%Y" | minus: 2014 }},
-  "posts": [{% for post in site.posts limit:5 %}{"d":{{ post.date | date: "%Y-%m-%d" | jsonify }},"t":{{ post.title | jsonify }},"u":{{ post.url | jsonify }}}{% unless forloop.last %},{% endunless %}{% endfor %}]
+  "posts": [{% for post in site.posts limit:5 %}{"d":{{ post.date | date: "%Y-%m-%d" | jsonify }},"t":{{ post.title | jsonify }},"u":{{ post.url | jsonify }}}{% unless forloop.last %},{% endunless %}{% endfor %}],
+  "tags": [{% assign sorted_tags = site.tags | sort %}{% for tag in sorted_tags %}{{ tag[0] | jsonify }}{% unless forloop.last %},{% endunless %}{% endfor %}]
 }</script>
 
 <style>
@@ -99,6 +100,7 @@
     { label: 'Projects', path: '/projects/',  hint: '/projects' },
     { label: 'Now',      path: '/now',        hint: '/now'      },
     { label: 'About',    path: '/about/',     hint: '/about'    },
+    { label: 'Tags',     path: '/tags/',      hint: '/tags'     },
   ];
 
   var historyLines = siteData.posts.map(function (p) { return p.d + '  ' + p.t; }).join('\n');
@@ -114,7 +116,7 @@
       '    sudo      ...\n' +
       '    clear     reset',
     'whoami':  'jessie keck\nengineering manager · builder · open source contributor',
-    'ls':      'drwxr-xr-x  about/\ndrwxr-xr-x  blog/\n-rw-r--r--  now\ndrwxr-xr-x  projects/',
+    'ls':      'drwxr-xr-x  about/\ndrwxr-xr-x  blog/\n-rw-r--r--  now\ndrwxr-xr-x  projects/\ndrwxr-xr-x  tags/',
     'pwd':     window.location.pathname,
     'uptime':  'up ' + siteData.uptime + ' years — first deploy 2014-05-26',
     'history': historyLines,
@@ -154,6 +156,32 @@
       var out = TTY[q];
       var cls = (q === 'sudo') ? 'cmdk-tty cmdk-tty-err' : 'cmdk-tty';
       body.innerHTML = '<div class="' + cls + '">' + esc(out) + '</div>';
+      return;
+    }
+
+    if (q.indexOf('tags/') === 0) {
+      var tagQ = q.slice(5);
+      var tagMatches = siteData.tags.filter(function (t) {
+        return !tagQ || t.toLowerCase().indexOf(tagQ) !== -1;
+      });
+
+      if (tagMatches.length === 0) {
+        body.innerHTML = '<div class="cmdk-empty">no tags match "' + esc(tagQ) + '"</div>';
+        return;
+      }
+
+      currentItems = tagMatches.map(function (t) {
+        return { label: t, path: '/tags/?tag=' + encodeURIComponent(t.toLowerCase()), hint: 'tags/' + t.toLowerCase() };
+      });
+
+      var tagHtml = '<div class="cmdk-group-label">Tags</div>';
+      currentItems.forEach(function (item, i) {
+        tagHtml += '<a class="cmdk-item" href="' + esc(item.path) + '" data-idx="' + i + '">'
+                 + '<span class="cmdk-item-label">' + esc(item.label) + '</span>'
+                 + '<span class="cmdk-item-hint">'  + esc(item.hint)  + '</span>'
+                 + '</a>';
+      });
+      body.innerHTML = tagHtml;
       return;
     }
 
