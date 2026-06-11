@@ -3,7 +3,7 @@ layout: post
 title:  "Easy image classification on the web with ml5 (and p5)"
 date:   2020-05-13 10:00:00
 tags:
-  - Machine Learning
+  - AI / Machine Learning
   - Javascript
   - Experiments
 summary: "A 50-line p5 sketch that runs MobileNet client-side. Surprising how far the browser ML toolkit has come — and where it still falls down."
