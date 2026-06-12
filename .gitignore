@@ -1,4 +1,5 @@
 _site
 .ruby-version
 .claude/*
+!.claude/commands/
 Gemfile.lock
