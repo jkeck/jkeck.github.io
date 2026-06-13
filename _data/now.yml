@@ -5,7 +5,11 @@ date: "THU · JUN 4"
 # Time-bound ticker overrides — active between start/end (ISO 8601, include timezone offset)
 # When active: home page bar scrolls this message; /now shows a live alert banner
 # date is optional — overrides the normal date display during the active window
-tickers: []
+tickers:
+  - message: "Go Giants!!!"
+    start: "2026-06-12T20:00:00-07:00"
+    end:   "2026-06-12T22:00:00-07:00"
+    date:  "FRI · JUN 12"
 # Example:
 # tickers:
 #   - message: "Speaking at RailsConf today — Room 201 at 2pm, come say hi"
