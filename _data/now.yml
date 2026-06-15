@@ -8,7 +8,7 @@ date: "THU · JUN 4"
 tickers:
   - message: "Super Fancy Supper Club tonight. 🎩"
     start: "2026-06-14T16:00:00-07:00"
-    end:   "2026-06-12T22:00:00-07:00"
+    end:   "2026-06-14T22:00:00-07:00"
     date:  "SUN · JUN 14"
 # Example:
 # tickers:
