@@ -110,6 +110,23 @@ title: Now
     line-height: 1.55; color: var(--text);
   }
 
+  /* Snapshot image */
+  .now-snapshot {
+    display: none;
+    margin-bottom: 36px;
+  }
+  .now-snapshot.is-active { display: block; }
+  .now-snapshot-img {
+    width: 100%; display: block;
+    border: 1px solid color-mix(in srgb, var(--amber) 20%, var(--rule2));
+    border-radius: 2px;
+  }
+  .now-snapshot-caption {
+    margin-top: 8px;
+    font-family: var(--mono); font-size: 10px; color: var(--dim);
+    letter-spacing: 0.06em;
+  }
+
   .now-footer-note {
     margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--rule2);
     font-family: var(--mono); font-size: 10px; color: var(--dim); letter-spacing: 0.06em;
@@ -138,6 +155,11 @@ title: Now
       <span class="now-live-window" id="now-live-window"></span>
     </div>
     <p class="now-live-message" id="now-live-message"></p>
+  </div>
+
+  <div class="now-snapshot" id="now-snapshot">
+    <img class="now-snapshot-img" id="now-snapshot-img" src="" alt="">
+    <p class="now-snapshot-caption" id="now-snapshot-caption" style="display:none"></p>
   </div>
 
   <div class="now-section">
@@ -179,45 +201,68 @@ title: Now
   </p>
 
 </div>
-<script type="application/json" id="ticker-data-now">
+<script type="application/json" id="now-page-data">
 {
   "tickers": [{% for t in site.data.now.tickers %}{% unless forloop.first %},{% endunless %}{"message":{{ t.message | jsonify }},"start":{{ t.start | jsonify }},"end":{{ t.end | jsonify }}{% if t.date %},"date":{{ t.date | jsonify }}{% endif %}}{% endfor %}]
+  {% if site.data.now.snapshot %}
+  ,"snapshot":{"image":{{ site.data.now.snapshot.image | jsonify }},"alt":{{ site.data.now.snapshot.alt | default: "" | jsonify }},"start":{{ site.data.now.snapshot.start | jsonify }},"end":{{ site.data.now.snapshot.end | jsonify }}{% if site.data.now.snapshot.caption %},"caption":{{ site.data.now.snapshot.caption | jsonify }}{% endif %}}
+  {% endif %}
 }
 </script>
 <script>
 (function () {
-  var raw = document.getElementById('ticker-data-now');
+  var raw = document.getElementById('now-page-data');
   if (!raw) return;
   var data;
   try { data = JSON.parse(raw.textContent); } catch (e) { return; }
-  if (!data.tickers || !data.tickers.length) return;
 
   var now = Date.now();
-  var active = null;
-  for (var i = 0; i < data.tickers.length; i++) {
-    var t = data.tickers[i];
-    if (!t.start || !t.end) continue;
-    var s = new Date(t.start).getTime();
-    var e = new Date(t.end).getTime();
-    if (now >= s && now <= e) { active = t; break; }
+
+  // Ticker
+  if (data.tickers && data.tickers.length) {
+    var activeTicker = null;
+    for (var i = 0; i < data.tickers.length; i++) {
+      var t = data.tickers[i];
+      if (!t.start || !t.end) continue;
+      if (now >= new Date(t.start).getTime() && now <= new Date(t.end).getTime()) {
+        activeTicker = t; break;
+      }
+    }
+    if (activeTicker) {
+      var alert   = document.getElementById('now-live-alert');
+      var msg     = document.getElementById('now-live-message');
+      var win     = document.getElementById('now-live-window');
+      if (alert && msg) {
+        msg.textContent = activeTicker.message;
+        if (win && activeTicker.start && activeTicker.end) {
+          var fmt = function (iso) {
+            return new Date(iso).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+          };
+          win.textContent = fmt(activeTicker.start) + ' – ' + fmt(activeTicker.end);
+        }
+        alert.classList.add('is-active');
+      }
+    }
   }
-  if (!active) return;
 
-  var alert   = document.getElementById('now-live-alert');
-  var msg     = document.getElementById('now-live-message');
-  var window_ = document.getElementById('now-live-window');
-  if (!alert || !msg) return;
-
-  msg.textContent = active.message;
-
-  if (active.start && active.end) {
-    var fmt = function (iso) {
-      var d = new Date(iso);
-      return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-    };
-    window_.textContent = fmt(active.start) + ' – ' + fmt(active.end);
+  // Snapshot
+  if (data.snapshot) {
+    var s = data.snapshot;
+    if (s.start && s.end &&
+        now >= new Date(s.start).getTime() && now <= new Date(s.end).getTime()) {
+      var wrap    = document.getElementById('now-snapshot');
+      var img     = document.getElementById('now-snapshot-img');
+      var caption = document.getElementById('now-snapshot-caption');
+      if (wrap && img) {
+        img.src = s.image;
+        img.alt = s.alt || '';
+        if (caption && s.caption) {
+          caption.textContent = s.caption;
+          caption.style.display = '';
+        }
+        wrap.classList.add('is-active');
+      }
+    }
   }
-
-  alert.classList.add('is-active');
 }());
 </script>

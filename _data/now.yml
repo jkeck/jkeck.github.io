@@ -17,6 +17,19 @@ tickers:
 #     end:   "2026-07-15T17:00:00-07:00"
 #     date:  "TUE · JUL 15"
 
+# Time-bound snapshot image — shown on /now between start/end (ISO 8601, include timezone offset)
+# image: path to the image asset (e.g. /images/now.jpg)
+# alt: accessibility description
+# caption: optional text shown below the image
+# snapshot: {}   # set to empty map (or remove key) to disable
+# Example:
+snapshot:
+  image: /images/now.jpg
+  alt: "Hiking in Marin on a foggy morning"
+  caption: "Marin Headlands · Jun 2026"
+  start: "2026-06-16T00:00:00-07:00"
+  end:   "2026-06-30T23:59:00-07:00"
+
 # Now page content — edit sections below to update
 updated: "Jun 4, 2026"
 

@@ -76,6 +76,23 @@ Multiple entries are supported; the first one whose window is currently active w
 
 ---
 
+### Set a time-bound snapshot image
+
+Set the `snapshot:` key in `_data/now.yml`. While active, a photo appears on `/now` between the live-alert banner and the Work section. Shown/hidden client-side — no rebuild needed when the window passes.
+
+```yaml
+snapshot:
+  image: /images/now.jpg              # path to the image asset under site root
+  alt: "Brief accessibility description"
+  caption: "Marin Headlands · Jun 2026"  # optional — shown below the image
+  start: "2026-06-16T09:00:00-07:00"     # ISO 8601, include timezone
+  end:   "2026-06-30T23:59:00-07:00"
+```
+
+To clear, remove the `snapshot:` key or set it to `snapshot: {}`. Start and end are required — the feature is always time-bounded.
+
+---
+
 ### Add a blog post
 
 When the user asks to write or add a blog post:
