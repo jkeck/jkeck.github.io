@@ -1,6 +1,6 @@
 # Feeds the home page ticker — keep this short
-blurb: "Wiring an AI Pi agent, fighting with Twilio to get SMS integration. Learning Astro for some side projects."
-date: "THU · JUN 4"
+blurb: "Wiring an AI Pi agent, interactive thorugh a telegram bot. Learning Astro for some side projects."
+date: "THU · JUN 18"
 
 # Time-bound ticker overrides — active between start/end (ISO 8601, include timezone offset)
 # When active: home page bar scrolls this message; /now shows a live alert banner
@@ -31,7 +31,7 @@ tickers:
 #   end:   "2026-06-30T23:59:00-07:00"
 
 # Now page content — edit sections below to update
-updated: "Jun 4, 2026"
+updated: "Jun 18, 2026"
 
 work: >
   Engineering manager at Ontra, leading a team building legal technology.
@@ -39,7 +39,7 @@ work: >
 
 building:
   - name: "Super Fancy Supper Club Website"
-    notes: "A fun website for a group of friends, mostly static, but working with PeerJS for live p2p features."
+    notes: "A fun website for a group of friends, mostly static, but working with PeerJS for live p2p voting features."
   - name: "AI Pi agent"
     notes: "Wiring a Raspberry Pi with an LLM agent layer, AI-Assistant, home dashboards, and improving via feedback loops."
 
