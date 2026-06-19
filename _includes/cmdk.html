@@ -93,6 +93,8 @@
   if (!overlay) return;
 
   var siteData = JSON.parse(document.getElementById('cmdk-data').textContent);
+  var ARCADE_TRANSITION = {{ site.arcade.transition | default: 'crt' | jsonify }};
+  var arcadeLaunching = false;
 
   var NAV = [
     { label: 'Home',     path: '/',          hint: '/'         },
@@ -123,6 +125,49 @@
     'sudo':    'permission denied. (nice try.)',
   };
 
+  function arcadeOut() {
+    sessionStorage.setItem('jk-arcade-from', ARCADE_TRANSITION);
+    if (ARCADE_TRANSITION === 'pixel') {
+      pixelDissolveOut(function () { window.location.href = '/arcade/'; });
+    } else {
+      crtCollapseOut(function () { window.location.href = '/arcade/'; });
+    }
+  }
+
+  function crtCollapseOut(cb) {
+    var html = document.documentElement;
+    html.style.transition = 'transform 0.32s ease-in, filter 0.32s ease-in';
+    html.style.transformOrigin = 'center 50%';
+    html.style.transform = 'scaleY(0.005)';
+    html.style.filter = 'brightness(3.5) saturate(0)';
+    setTimeout(function () {
+      html.style.transition = 'opacity 0.12s';
+      html.style.opacity = '0';
+      setTimeout(cb, 130);
+    }, 310);
+  }
+
+  function pixelDissolveOut(cb) {
+    var el = document.createElement('canvas');
+    el.style.cssText = 'position:fixed;inset:0;z-index:999999;pointer-events:all';
+    el.width = window.innerWidth;
+    el.height = window.innerHeight;
+    document.body.appendChild(el);
+    var c = el.getContext('2d');
+    var bs = 6, cols = Math.ceil(el.width / bs), rows = Math.ceil(el.height / bs), total = cols * rows;
+    var cells = [], i;
+    for (i = 0; i < total; i++) cells.push(i);
+    for (i = total - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = cells[i]; cells[i] = cells[j]; cells[j] = t; }
+    var filled = 0, batch = Math.ceil(total / 45);
+    (function step() {
+      for (var k = 0; k < batch && filled < total; k++, filled++) {
+        c.fillStyle = '#080604';
+        c.fillRect((cells[filled] % cols) * bs, Math.floor(cells[filled] / cols) * bs, bs, bs);
+      }
+      filled < total ? requestAnimationFrame(step) : setTimeout(cb, 60);
+    }());
+  }
+
   var activeIdx    = -1;
   var currentItems = [];
 
@@ -151,6 +196,15 @@
     currentItems = [];
 
     if (q === 'clear') { inp.value = ''; render(''); return; }
+
+    if (q === 'insert coin') {
+      body.innerHTML = '<div class="cmdk-tty">● inserting coin…\n● launching arcade</div>';
+      if (!arcadeLaunching) {
+        arcadeLaunching = true;
+        setTimeout(function () { close(); arcadeOut(); }, 900);
+      }
+      return;
+    }
 
     if (q && TTY[q] !== undefined) {
       var out = TTY[q];

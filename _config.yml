@@ -13,3 +13,7 @@ linkedin: jessiekeck
 # Build settings
 markdown: kramdown
 permalink: pretty
+
+# Arcade easter egg config
+arcade:
+  transition: crt   # crt | pixel

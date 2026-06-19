@@ -1,0 +1,1203 @@
+---
+layout: null
+title: Arcade
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Arcade — {{ site.title }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A hidden arcade on jessiekeck.com.">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="alternate icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #080604;
+      --panel:    #0f0d0b;
+      --panel2:   #161310;
+      --rule:     #2a2420;
+      --rule2:    #1e1b18;
+      --text:     #e8e1d4;
+      --text-sub: #b8ad99;
+      --muted:    #8a8070;
+      --dim:      #5e574c;
+      --amber:    #d4a574;
+      --amber2:   #c4904a;
+      --ok:       #8db884;
+      --ok2:      #74a87a;
+      --display:  "Fraunces", Georgia, serif;
+      --mono:     "IBM Plex Mono", ui-monospace, monospace;
+    }
+
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--mono);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* CRT power-on — applied via JS on page load */
+    html.crt-boot {
+      animation: crt-power-on 0.65s ease-out both;
+      transform-origin: center 50%;
+    }
+    @keyframes crt-power-on {
+      0%   { transform: scaleY(0.005); filter: brightness(4) saturate(0); }
+      25%  { filter: brightness(2.5) saturate(0.1); }
+      65%  { transform: scaleY(1.006); filter: brightness(1.4) saturate(0.7); }
+      100% { transform: scaleY(1); filter: brightness(1) saturate(1); }
+    }
+
+    /* Subtle scanline overlay — ambient CRT texture */
+    #arcade-root::before {
+      content: '';
+      position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+      background: repeating-linear-gradient(
+        0deg, transparent 0, transparent 2px,
+        rgba(0,0,0,0.05) 2px, rgba(0,0,0,0.05) 4px
+      );
+    }
+
+    /* Screens */
+    #arcade-root { min-height: 100vh; display: flex; flex-direction: column; }
+    .screen { min-height: 100vh; display: flex; flex-direction: column; }
+
+
+    /* ── LOBBY ─────────────────────────────────── */
+
+    #screen-lobby {
+      align-items: center;
+      justify-content: center;
+      padding: 48px 24px 40px;
+      gap: 44px;
+    }
+
+    .lobby-header { text-align: center; }
+
+    .arcade-title {
+      font-family: var(--display);
+      font-size: clamp(52px, 14vw, 100px);
+      font-weight: 900;
+      font-style: normal;
+      letter-spacing: 0.18em;
+      color: var(--amber);
+      line-height: 1;
+      text-shadow:
+        0 0 24px rgba(212,165,116,0.85),
+        0 0 60px rgba(212,165,116,0.45),
+        0 0 100px rgba(212,165,116,0.2);
+    }
+
+    .arcade-sub {
+      margin-top: 10px;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      color: var(--dim);
+      text-transform: uppercase;
+    }
+
+    /* Cabinet grid */
+    .cabinet-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      width: 100%;
+      max-width: 680px;
+    }
+
+    .cabinet {
+      background: var(--panel);
+      border: 1.5px solid rgba(212,165,116,0.3);
+      border-radius: 12px;
+      padding: 16px 16px 20px;
+      cursor: pointer;
+      transition: border-color 0.18s, box-shadow 0.18s, transform 0.15s;
+      display: flex; flex-direction: column; gap: 14px;
+      text-align: center;
+      user-select: none;
+    }
+    .cabinet:hover, .cabinet:focus {
+      border-color: var(--amber);
+      box-shadow: 0 0 32px rgba(212,165,116,0.2), inset 0 0 24px rgba(212,165,116,0.04);
+      transform: translateY(-3px);
+      outline: none;
+    }
+    .cabinet:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+
+    .cabinet.coming-soon {
+      border-color: rgba(94,87,76,0.25);
+      opacity: 0.4;
+      cursor: default;
+    }
+    .cabinet.coming-soon:hover {
+      border-color: rgba(94,87,76,0.25);
+      box-shadow: none;
+      transform: none;
+    }
+
+    .cab-preview {
+      border-radius: 6px;
+      border: 1px solid rgba(212,165,116,0.15);
+      background: #050403;
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 4/3;
+    }
+
+    .cab-screen-placeholder {
+      aspect-ratio: 4/3;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; color: var(--dim);
+      border-radius: 6px;
+      border: 1px solid rgba(94,87,76,0.2);
+      background: #050403;
+    }
+
+    .cab-name {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      color: var(--text-sub);
+      text-transform: uppercase;
+    }
+
+    .cab-status {
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      color: var(--dim);
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .press-start {
+      color: var(--amber);
+      animation: blink-text 1s step-end infinite;
+    }
+
+    @keyframes blink-text {
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: 0; }
+    }
+
+
+    /* ── HIGH SCORES ────────────────────────────── */
+
+    .scores-panel {
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .scores-title {
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .score-row {
+      display: grid;
+      grid-template-columns: 24px 44px 1fr auto;
+      gap: 8px;
+      align-items: baseline;
+      padding: 5px 4px;
+      font-size: 12.5px;
+      border-bottom: 1px solid var(--rule2);
+    }
+    .score-row:last-child { border-bottom: none; }
+    .score-row.new-entry { background: rgba(212,165,116,0.07); border-radius: 3px; }
+
+    .score-rank   { color: var(--dim); }
+    .score-inits  { color: var(--amber); letter-spacing: 0.1em; }
+    .score-pts    { color: var(--text); text-align: right; }
+    .score-date   { color: var(--dim); font-size: 10px; }
+
+    .score-empty  { font-size: 11px; color: var(--dim); padding: 8px 0; }
+
+
+    /* ── GAME SCREEN ────────────────────────────── */
+
+    #screen-game { align-items: stretch; }
+
+    .game-header {
+      display: flex; align-items: center; gap: 16px;
+      padding: 0 20px;
+      height: 52px; flex-shrink: 0;
+      border-bottom: 1px solid var(--rule2);
+    }
+
+    .game-label {
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.2em; color: var(--amber);
+      flex-shrink: 0;
+    }
+
+    .game-stats {
+      display: flex; gap: 20px; flex: 1;
+      font-size: 11px; letter-spacing: 0.08em; color: var(--muted);
+    }
+
+    .stat-val { color: var(--text); }
+    #hud-lives { letter-spacing: 0.06em; }
+
+    .game-body {
+      flex: 1;
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px; overflow: hidden;
+    }
+
+    #game-canvas {
+      display: block;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+
+
+    /* ── GAME OVER ──────────────────────────────── */
+
+    #screen-gameover {
+      align-items: center;
+      justify-content: flex-start;
+      padding: 60px 24px 48px;
+      gap: 32px;
+      overflow-y: auto;
+    }
+
+    .gameover-content {
+      width: 100%; max-width: 480px;
+      display: flex; flex-direction: column; gap: 28px;
+      align-items: center; text-align: center;
+    }
+
+    .gameover-title {
+      font-family: var(--display);
+      font-size: clamp(48px, 14vw, 80px);
+      font-weight: 900;
+      color: var(--amber);
+      letter-spacing: 0.12em;
+      line-height: 1;
+      text-shadow: 0 0 20px rgba(212,165,116,0.7);
+      animation: gameover-flicker 0.7s ease-out both;
+    }
+    @keyframes gameover-flicker {
+      0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+      20%, 22%, 24%, 55% { opacity: 0; }
+    }
+
+    .final-score { font-size: 15px; letter-spacing: 0.12em; color: var(--text-sub); }
+    .final-score-val { color: var(--text); font-size: 22px; }
+
+    .hiscore-entry {
+      display: flex; flex-direction: column; gap: 10px; align-items: center;
+    }
+    .hiscore-prompt {
+      font-size: 12px; letter-spacing: 0.18em; color: var(--amber);
+      text-transform: uppercase;
+    }
+    .hiscore-sub {
+      font-size: 10px; letter-spacing: 0.14em; color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .initials-row {
+      display: flex; gap: 10px; margin: 8px 0;
+    }
+    .initial-box {
+      width: 54px; height: 68px;
+      border: 1.5px solid var(--rule);
+      border-radius: 6px;
+      background: var(--panel);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px; font-weight: 500;
+      color: var(--text-sub);
+      cursor: pointer;
+      transition: border-color 0.1s, color 0.1s, box-shadow 0.1s;
+    }
+    .initial-box.active {
+      border-color: var(--amber);
+      color: var(--amber);
+      box-shadow: 0 0 14px rgba(212,165,116,0.3);
+      animation: initial-pulse 0.8s step-end infinite;
+    }
+    @keyframes initial-pulse {
+      0%, 100% { border-color: var(--amber); }
+      50%       { border-color: rgba(212,165,116,0.35); }
+    }
+
+    .initials-hint { font-size: 9.5px; color: var(--dim); letter-spacing: 0.1em; }
+
+    .gameover-actions { display: flex; gap: 12px; }
+
+
+    /* ── SHARED COMPONENTS ──────────────────────── */
+
+    .arcade-btn {
+      font-family: var(--mono);
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      padding: 10px 24px;
+      background: none;
+      border: 1.5px solid var(--rule);
+      border-radius: 6px;
+      color: var(--text-sub);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, box-shadow 0.15s;
+    }
+    .arcade-btn:hover {
+      border-color: var(--muted);
+      color: var(--text);
+    }
+    .arcade-btn.primary {
+      border-color: var(--amber);
+      color: var(--amber);
+    }
+    .arcade-btn.primary:hover {
+      box-shadow: 0 0 18px rgba(212,165,116,0.25);
+      color: var(--text);
+    }
+
+    .exit-btn {
+      font-family: var(--mono);
+      font-size: 10px; font-weight: 400;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      padding: 7px 16px;
+      background: none;
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      color: var(--dim);
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+      flex-shrink: 0;
+    }
+    .exit-btn:hover { color: var(--text-sub); border-color: var(--muted); }
+    .exit-btn.small { padding: 5px 12px; font-size: 9.5px; }
+
+
+    /* ── RESPONSIVE ─────────────────────────────── */
+
+    @media (max-width: 600px) {
+      #screen-lobby { padding: 36px 16px 32px; gap: 32px; }
+      .cabinet-grid { grid-template-columns: 1fr; max-width: 320px; gap: 14px; }
+      .cabinet.coming-soon { display: none; }
+      .gameover-actions { flex-direction: column; width: 100%; }
+      .arcade-btn { width: 100%; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="arcade-root">
+
+  <!-- ── LOBBY ──────────────────────────────────── -->
+  <div id="screen-lobby" class="screen">
+
+    <div class="lobby-header">
+      <h1 class="arcade-title">ARCADE</h1>
+      <p class="arcade-sub">a hidden corner of jessiekeck.com</p>
+    </div>
+
+    <div class="cabinet-grid">
+      <div class="cabinet" id="cab-breakout" role="button" tabindex="0" aria-label="Play Breakout">
+        <canvas class="cab-preview" id="preview-breakout" width="160" height="120" aria-hidden="true"></canvas>
+        <div class="cab-name">Breakout</div>
+        <div class="cab-status press-start">Press Start</div>
+      </div>
+      <div class="cabinet coming-soon" aria-hidden="true">
+        <div class="cab-screen-placeholder">?</div>
+        <div class="cab-name">???</div>
+        <div class="cab-status">Coming Soon</div>
+      </div>
+      <div class="cabinet coming-soon" aria-hidden="true">
+        <div class="cab-screen-placeholder">?</div>
+        <div class="cab-name">???</div>
+        <div class="cab-status">Coming Soon</div>
+      </div>
+    </div>
+
+    <div class="scores-panel">
+      <div class="scores-title">High Scores — Breakout</div>
+      <div id="lobby-scores-list"></div>
+    </div>
+
+    <button class="exit-btn" id="lobby-exit">Exit Arcade</button>
+
+  </div><!-- /screen-lobby -->
+
+
+  <!-- ── GAME ───────────────────────────────────── -->
+  <div id="screen-game" class="screen" style="display:none">
+
+    <div class="game-header">
+      <span class="game-label">Breakout</span>
+      <div class="game-stats">
+        <span>Score&nbsp;<span class="stat-val" id="hud-score">0</span></span>
+        <span>Level&nbsp;<span class="stat-val" id="hud-level">1</span></span>
+        <span id="hud-lives">♥♥♥</span>
+      </div>
+      <button class="exit-btn small" id="game-exit">Lobby</button>
+    </div>
+
+    <div class="game-body">
+      <canvas id="game-canvas" width="440" height="580"></canvas>
+    </div>
+
+  </div><!-- /screen-game -->
+
+
+  <!-- ── GAME OVER ──────────────────────────────── -->
+  <div id="screen-gameover" class="screen" style="display:none">
+
+    <div class="gameover-content">
+
+      <h2 class="gameover-title">GAME OVER</h2>
+
+      <div class="final-score">
+        Score&nbsp;&nbsp;<span class="final-score-val" id="final-score-val">0</span>
+      </div>
+
+      <div class="hiscore-entry" id="hiscore-entry" style="display:none">
+        <p class="hiscore-prompt">New High Score!</p>
+        <p class="hiscore-sub">Enter your initials</p>
+        <div class="initials-row">
+          <div class="initial-box active" id="init-0" aria-label="Initial 1">A</div>
+          <div class="initial-box"        id="init-1" aria-label="Initial 2">A</div>
+          <div class="initial-box"        id="init-2" aria-label="Initial 3">A</div>
+        </div>
+        <p class="initials-hint">type letters · backspace to edit · enter to confirm</p>
+      </div>
+
+      <div class="scores-panel">
+        <div class="scores-title">High Scores — Breakout</div>
+        <div id="gameover-scores-list"></div>
+      </div>
+
+      <div class="gameover-actions">
+        <button class="arcade-btn primary" id="play-again">Play Again</button>
+        <button class="arcade-btn" id="goto-lobby">Lobby</button>
+      </div>
+
+    </div>
+
+  </div><!-- /screen-gameover -->
+
+</div><!-- /arcade-root -->
+
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── Config ─────────────────────────────────── */
+
+  var TRANSITION  = {{ site.arcade.transition | default: 'crt' | jsonify }};
+  var SCORES_KEY  = 'jk-arcade-breakout';
+
+  /* ── Screen management ──────────────────────── */
+
+  var currentScreen = 'lobby';
+
+  function showScreen(name) {
+    ['lobby', 'game', 'gameover'].forEach(function (s) {
+      document.getElementById('screen-' + s).style.display = s === name ? '' : 'none';
+    });
+    currentScreen = name;
+  }
+
+  /* ── Score system ───────────────────────────── */
+
+  function getScores() {
+    try { return JSON.parse(localStorage.getItem(SCORES_KEY)) || []; }
+    catch (e) { return []; }
+  }
+
+  function saveScore(initials, pts) {
+    var scores = getScores();
+    scores.push({ initials: initials.toUpperCase(), score: pts, date: new Date().toISOString().slice(0, 10) });
+    scores.sort(function (a, b) { return b.score - a.score; });
+    scores = scores.slice(0, 10);
+    localStorage.setItem(SCORES_KEY, JSON.stringify(scores));
+    return scores;
+  }
+
+  function isHighScore(pts) {
+    var scores = getScores();
+    if (scores.length < 10) return true;
+    return pts > scores[scores.length - 1].score;
+  }
+
+  function renderScores(listId, highlightPts, highlightIdx) {
+    var scores = getScores();
+    var el = document.getElementById(listId);
+    if (!el) return;
+    if (!scores.length) {
+      el.innerHTML = '<div class="score-empty">no scores yet — be the first!</div>';
+      return;
+    }
+    var html = '';
+    scores.forEach(function (s, i) {
+      var isNew = highlightPts !== undefined && i === highlightIdx;
+      html += '<div class="score-row' + (isNew ? ' new-entry' : '') + '">'
+            + '<span class="score-rank">' + (i + 1) + '.</span>'
+            + '<span class="score-inits">' + s.initials + '</span>'
+            + '<span class="score-pts">' + s.score.toLocaleString() + '</span>'
+            + '<span class="score-date">' + s.date + '</span>'
+            + '</div>';
+    });
+    el.innerHTML = html;
+  }
+
+  /* ── Exit / transition out ──────────────────── */
+
+  function arcadeExit() {
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = null;
+    if (TRANSITION === 'pixel') {
+      pixelOut(navigate);
+    } else {
+      crtOut(navigate);
+    }
+  }
+
+  function navigate() {
+    if (window.history.length > 1) { history.back(); }
+    else { window.location.href = '/'; }
+  }
+
+  function crtOut(cb) {
+    var html = document.documentElement;
+    html.style.transition = 'transform 0.32s ease-in, filter 0.32s ease-in';
+    html.style.transformOrigin = 'center 50%';
+    html.style.transform = 'scaleY(0.005)';
+    html.style.filter = 'brightness(3.5) saturate(0)';
+    setTimeout(function () {
+      html.style.transition = 'opacity 0.12s';
+      html.style.opacity = '0';
+      setTimeout(cb, 130);
+    }, 310);
+  }
+
+  function pixelOut(cb) {
+    var el = document.createElement('canvas');
+    el.style.cssText = 'position:fixed;inset:0;z-index:99999;pointer-events:all';
+    el.width = window.innerWidth;
+    el.height = window.innerHeight;
+    document.body.appendChild(el);
+    var c = el.getContext('2d');
+    var bs = 6, cols = Math.ceil(el.width / bs), rows = Math.ceil(el.height / bs), total = cols * rows;
+    var cells = [], i;
+    for (i = 0; i < total; i++) cells.push(i);
+    for (i = total - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = cells[i]; cells[i] = cells[j]; cells[j] = t; }
+    var filled = 0, batch = Math.ceil(total / 45);
+    (function step() {
+      for (var k = 0; k < batch && filled < total; k++, filled++) {
+        c.fillStyle = '#080604';
+        c.fillRect((cells[filled] % cols) * bs, Math.floor(cells[filled] / cols) * bs, bs, bs);
+      }
+      filled < total ? requestAnimationFrame(step) : setTimeout(cb, 60);
+    }());
+  }
+
+  /* ── Power-on animation ─────────────────────── */
+
+  function powerOn() {
+    var from = sessionStorage.getItem('jk-arcade-from');
+    sessionStorage.removeItem('jk-arcade-from');
+
+    if (!from || from === 'crt') {
+      document.documentElement.classList.add('crt-boot');
+      document.documentElement.addEventListener('animationend', function () {
+        document.documentElement.classList.remove('crt-boot');
+      }, { once: true });
+    } else if (from === 'pixel') {
+      pixelPowerOn();
+    }
+  }
+
+  function pixelPowerOn() {
+    var el = document.createElement('canvas');
+    el.style.cssText = 'position:fixed;inset:0;z-index:9999;pointer-events:none';
+    el.width = window.innerWidth;
+    el.height = window.innerHeight;
+    document.body.appendChild(el);
+    var c = el.getContext('2d');
+    c.fillStyle = '#080604';
+    c.fillRect(0, 0, el.width, el.height);
+    var bs = 6, cols = Math.ceil(el.width / bs), rows = Math.ceil(el.height / bs), total = cols * rows;
+    var cells = [], i;
+    for (i = 0; i < total; i++) cells.push(i);
+    for (i = total - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = cells[i]; cells[i] = cells[j]; cells[j] = t; }
+    var revealed = 0, batch = Math.ceil(total / 40);
+    (function step() {
+      for (var k = 0; k < batch && revealed < total; k++, revealed++) {
+        c.clearRect((cells[revealed] % cols) * bs, Math.floor(cells[revealed] / cols) * bs, bs, bs);
+      }
+      revealed < total ? requestAnimationFrame(step) : el.remove();
+    }());
+  }
+
+  /* ── Cabinet preview (Breakout mini-scene) ───── */
+
+  function drawBreakoutPreview() {
+    var cv = document.getElementById('preview-breakout');
+    if (!cv) return;
+    var c = cv.getContext('2d');
+    var W = cv.width, H = cv.height; // 160 × 120
+
+    c.fillStyle = '#050403';
+    c.fillRect(0, 0, W, H);
+
+    // Mini bricks: 5 cols × 3 rows
+    var bw = 24, bh = 7, bp = 3;
+    var startX = (W - (5 * bw + 4 * bp)) / 2;
+    var colors = ['#c4904a', '#d4a574', '#8db884'];
+    colors.forEach(function (col, r) {
+      c.fillStyle = col;
+      c.shadowColor = col;
+      c.shadowBlur = 5;
+      for (var co = 0; co < 5; co++) {
+        c.fillRect(startX + co * (bw + bp), 10 + r * (bh + bp), bw, bh);
+      }
+    });
+    c.shadowBlur = 0;
+
+    // Ball
+    c.fillStyle = '#e8e1d4';
+    c.shadowColor = '#e8e1d4';
+    c.shadowBlur = 7;
+    c.beginPath();
+    c.arc(W * 0.42, H * 0.62, 4, 0, Math.PI * 2);
+    c.fill();
+    c.shadowBlur = 0;
+
+    // Paddle
+    var pw = 44, ph = 6, px2 = (W - pw) / 2 - 8, py2 = H - 16;
+    c.fillStyle = '#d4a574';
+    c.shadowColor = '#d4a574';
+    c.shadowBlur = 9;
+    c.fillRect(px2, py2, pw, ph);
+    c.shadowBlur = 0;
+  }
+
+
+  /* ══════════════════════════════════════════════
+     BREAKOUT GAME
+  ══════════════════════════════════════════════ */
+
+  var CANVAS_W    = 440;
+  var CANVAS_H    = 580;
+  var BRICK_COLS  = 10;
+  var BRICK_ROWS  = 6;
+  var BRICK_W     = 38;
+  var BRICK_H     = 13;
+  var BRICK_PAD   = 4;
+  var BALL_R      = 6;
+  var PADDLE_W    = 80;
+  var PADDLE_H    = 10;
+  var PADDLE_Y    = 552;
+  var INIT_SPEED  = 5;
+
+  var BRICK_COLORS = [
+    { fill: '#b87830', pts: 7 },
+    { fill: '#d4a574', pts: 5 },
+    { fill: '#8db884', pts: 5 },
+    { fill: '#74a87a', pts: 3 },
+    { fill: '#8a8070', pts: 2 },
+    { fill: '#5e574c', pts: 1 },
+  ];
+
+  // Game state
+  var canvas, ctx;
+  var bX, bY, bVX, bVY, ballSpeed;
+  var pX; // paddle X
+  var pLeft, pRight; // keyboard movement flags
+  var mouseX; // null = use keyboard
+  var bricks;
+  var particles, popups;
+  var score, lives, level;
+  var gameState; // 'waiting' | 'playing' | 'level-clear' | 'dead'
+  var rafId = null;
+
+  function brickOffsetX() {
+    return Math.floor((CANVAS_W - (BRICK_COLS * BRICK_W + (BRICK_COLS - 1) * BRICK_PAD)) / 2);
+  }
+
+  function setupBricks() {
+    bricks = [];
+    var ox = brickOffsetX(), oy = 16;
+    for (var r = 0; r < BRICK_ROWS; r++) {
+      var col = BRICK_COLORS[r];
+      var hits = (level >= 3 && r === 0) ? 2 : 1;
+      for (var c = 0; c < BRICK_COLS; c++) {
+        bricks.push({
+          x: ox + c * (BRICK_W + BRICK_PAD),
+          y: oy + r * (BRICK_H + BRICK_PAD),
+          fill: col.fill, pts: col.pts,
+          hits: hits, maxHits: hits, alive: true
+        });
+      }
+    }
+  }
+
+  function resetBall() {
+    pX = (CANVAS_W - PADDLE_W) / 2;
+    bX = pX + PADDLE_W / 2;
+    bY = PADDLE_Y - BALL_R - 2;
+    bVX = 0; bVY = 0;
+  }
+
+  function launchBall() {
+    var angle = (Math.random() * 0.8 - 0.4); // ±0.4 rad from straight up
+    bVX = ballSpeed * Math.sin(angle);
+    bVY = -Math.abs(ballSpeed * Math.cos(angle));
+    gameState = 'playing';
+  }
+
+  function initBreakout() {
+    canvas = document.getElementById('game-canvas');
+    ctx    = canvas.getContext('2d');
+    score  = 0; lives  = 3; level  = 1;
+    ballSpeed = INIT_SPEED;
+    pLeft = false; pRight = false;
+    mouseX = null;
+    particles = []; popups = [];
+    setupBricks();
+    resetBall();
+    updateHUD();
+    gameState = 'waiting';
+    fitCanvas();
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(gameLoop);
+  }
+
+  function fitCanvas() {
+    if (!canvas) return;
+    var body = document.querySelector('.game-body');
+    if (!body) return;
+    var r = body.getBoundingClientRect();
+    var scale = Math.min(1, r.width / CANVAS_W, r.height / CANVAS_H);
+    canvas.style.width  = Math.floor(CANVAS_W * scale) + 'px';
+    canvas.style.height = Math.floor(CANVAS_H * scale) + 'px';
+  }
+
+  function canvasClientX(cx) {
+    var r = canvas.getBoundingClientRect();
+    return (cx - r.left) * (CANVAS_W / r.width);
+  }
+
+  function updateHUD() {
+    document.getElementById('hud-score').textContent = score.toLocaleString();
+    document.getElementById('hud-level').textContent = level;
+    var h = '';
+    for (var i = 0; i < 3; i++) h += i < lives ? '♥' : '♡';
+    document.getElementById('hud-lives').textContent = h;
+  }
+
+  /* ── Game loop ──────────────────────────────── */
+
+  function gameLoop() {
+    if (gameState === 'level-clear' || gameState === 'dead') return;
+    update();
+    draw();
+    rafId = requestAnimationFrame(gameLoop);
+  }
+
+  function update() {
+    // Paddle
+    var target = mouseX !== null
+      ? mouseX - PADDLE_W / 2
+      : pX + (pRight ? 5 : 0) - (pLeft ? 5 : 0);
+    pX = Math.max(0, Math.min(CANVAS_W - PADDLE_W, target));
+
+    // Particles
+    for (var i = particles.length - 1; i >= 0; i--) {
+      var p = particles[i];
+      p.x += p.vx; p.y += p.vy; p.vy += 0.15; p.life -= 0.055;
+      if (p.life <= 0) particles.splice(i, 1);
+    }
+    for (var j = popups.length - 1; j >= 0; j--) {
+      popups[j].y -= 1.2; popups[j].life -= 0.035;
+      if (popups[j].life <= 0) popups.splice(j, 1);
+    }
+
+    if (gameState !== 'playing') {
+      // Ball follows paddle while waiting
+      bX = pX + PADDLE_W / 2;
+      return;
+    }
+
+    // Ball
+    bX += bVX; bY += bVY;
+
+    // Wall collisions
+    if (bX - BALL_R <= 0)       { bX = BALL_R; bVX = Math.abs(bVX); }
+    if (bX + BALL_R >= CANVAS_W) { bX = CANVAS_W - BALL_R; bVX = -Math.abs(bVX); }
+    if (bY - BALL_R <= 0)       { bY = BALL_R; bVY = Math.abs(bVY); }
+
+    // Ball lost
+    if (bY - BALL_R > CANVAS_H) { loseLife(); return; }
+
+    // Paddle collision
+    if (bVY > 0
+        && bY + BALL_R >= PADDLE_Y
+        && bY - BALL_R <= PADDLE_Y + PADDLE_H
+        && bX >= pX - 4
+        && bX <= pX + PADDLE_W + 4) {
+      var rel   = (bX - pX) / PADDLE_W;
+      var angle = (rel - 0.5) * 2 * (65 * Math.PI / 180);
+      var spd   = Math.hypot(bVX, bVY);
+      spd       = Math.min(spd * 1.012, ballSpeed * 1.9);
+      bVX = spd * Math.sin(angle);
+      bVY = -Math.abs(spd * Math.cos(angle));
+      bY  = PADDLE_Y - BALL_R;
+    }
+
+    // Brick collisions
+    for (var bi = 0; bi < bricks.length; bi++) {
+      var b = bricks[bi];
+      if (!b.alive) continue;
+      if (bX + BALL_R > b.x && bX - BALL_R < b.x + BRICK_W
+          && bY + BALL_R > b.y && bY - BALL_R < b.y + BRICK_H) {
+
+        b.hits--;
+        if (b.hits <= 0) {
+          b.alive = false;
+          score += b.pts;
+          addParticles(b.x + BRICK_W / 2, b.y + BRICK_H / 2, b.fill, 7);
+          addPopup(b.x + BRICK_W / 2, b.y, b.pts);
+          updateHUD();
+        } else {
+          addParticles(b.x + BRICK_W / 2, b.y + BRICK_H / 2, b.fill, 3);
+        }
+
+        var prevX = bX - bVX, prevY = bY - bVY;
+        var fromSide = prevX + BALL_R <= b.x || prevX - BALL_R >= b.x + BRICK_W;
+        if (fromSide) bVX = -bVX; else bVY = -bVY;
+        break;
+      }
+    }
+
+    // Level clear?
+    if (bricks.every(function (b) { return !b.alive; })) levelClear();
+  }
+
+  function addParticles(x, y, color, count) {
+    for (var i = 0; i < count; i++) {
+      var a = Math.random() * Math.PI * 2;
+      var spd = Math.random() * 3 + 1;
+      particles.push({ x: x, y: y, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, color: color, life: 1 });
+    }
+  }
+
+  function addPopup(x, y, pts) {
+    popups.push({ x: x, y: y, text: '+' + pts, life: 1 });
+  }
+
+  /* ── Draw ───────────────────────────────────── */
+
+  function draw() {
+    ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
+    ctx.fillStyle = '#080604';
+    ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+
+    // Bricks
+    for (var i = 0; i < bricks.length; i++) {
+      var b = bricks[i];
+      if (!b.alive) continue;
+      ctx.globalAlpha = b.maxHits > 1 && b.hits < b.maxHits ? 0.48 : 1;
+      ctx.fillStyle = b.fill;
+      if (b.pts >= 5) { ctx.shadowColor = b.fill; ctx.shadowBlur = 7; }
+      roundRect(b.x, b.y, BRICK_W, BRICK_H, 2); ctx.fill();
+      ctx.shadowBlur = 0; ctx.globalAlpha = 1;
+    }
+
+    // Particles
+    particles.forEach(function (p) {
+      ctx.globalAlpha = Math.max(0, p.life);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(p.x - 1.5, p.y - 1.5, 3, 3);
+    });
+    ctx.globalAlpha = 1;
+
+    // Score popups
+    ctx.font = '10px "IBM Plex Mono", monospace';
+    ctx.textAlign = 'center';
+    popups.forEach(function (p) {
+      ctx.globalAlpha = p.life;
+      ctx.fillStyle = '#d4a574';
+      ctx.fillText(p.text, p.x, p.y);
+    });
+    ctx.globalAlpha = 1; ctx.textAlign = 'left';
+
+    // Paddle
+    ctx.fillStyle = '#d4a574';
+    ctx.shadowColor = '#d4a574'; ctx.shadowBlur = 14;
+    roundRect(pX, PADDLE_Y, PADDLE_W, PADDLE_H, 5); ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // Ball
+    ctx.fillStyle = '#e8e1d4';
+    ctx.shadowColor = 'rgba(232,225,212,0.9)'; ctx.shadowBlur = 10;
+    ctx.beginPath(); ctx.arc(bX, bY, BALL_R, 0, Math.PI * 2); ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // Waiting hint
+    if (gameState === 'waiting') {
+      ctx.fillStyle = 'rgba(94,87,76,0.8)';
+      ctx.font = '11px "IBM Plex Mono", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('SPACE or CLICK to launch', CANVAS_W / 2, CANVAS_H / 2 + 20);
+      ctx.textAlign = 'left';
+    }
+  }
+
+  function roundRect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.arcTo(x + w, y, x + w, y + r, r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+    ctx.lineTo(x + r, y + h);
+    ctx.arcTo(x, y + h, x, y + h - r, r);
+    ctx.lineTo(x, y + r);
+    ctx.arcTo(x, y, x + r, y, r);
+    ctx.closePath();
+  }
+
+  /* ── Level / life management ────────────────── */
+
+  function loseLife() {
+    gameState = 'dead';
+    lives--;
+    updateHUD();
+    if (lives <= 0) {
+      cancelAnimationFrame(rafId); rafId = null;
+      setTimeout(showGameOver, 400);
+    } else {
+      resetBall();
+      gameState = 'waiting';
+      rafId = requestAnimationFrame(gameLoop);
+    }
+  }
+
+  function levelClear() {
+    gameState = 'level-clear';
+    cancelAnimationFrame(rafId); rafId = null;
+
+    // Draw level-clear overlay on canvas
+    ctx.fillStyle = 'rgba(8,6,4,0.75)';
+    ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+    ctx.textAlign = 'center';
+    ctx.shadowColor = '#d4a574'; ctx.shadowBlur = 24;
+    ctx.font = 'bold 26px "IBM Plex Mono", monospace';
+    ctx.fillStyle = '#d4a574';
+    ctx.fillText('LEVEL ' + level + ' CLEAR', CANVAS_W / 2, CANVAS_H / 2 - 18);
+    ctx.shadowBlur = 0;
+    ctx.font = '12px "IBM Plex Mono", monospace';
+    ctx.fillStyle = '#8a8070';
+    ctx.fillText('well played', CANVAS_W / 2, CANVAS_H / 2 + 14);
+    ctx.textAlign = 'left';
+
+    setTimeout(function () {
+      level++;
+      ballSpeed = Math.min(INIT_SPEED + (level - 1) * 0.55, 10);
+      setupBricks();
+      resetBall();
+      particles = []; popups = [];
+      updateHUD();
+      gameState = 'waiting';
+      rafId = requestAnimationFrame(gameLoop);
+    }, 1800);
+  }
+
+  /* ── Game over ──────────────────────────────── */
+
+  function showGameOver() {
+    showScreen('gameover');
+    document.getElementById('final-score-val').textContent = score.toLocaleString();
+
+    if (score > 0 && isHighScore(score)) {
+      document.getElementById('hiscore-entry').style.display = '';
+      startInitialsEntry();
+    } else {
+      document.getElementById('hiscore-entry').style.display = 'none';
+      renderScores('gameover-scores-list');
+    }
+  }
+
+  /* ── Initials entry ─────────────────────────── */
+
+  var initials = ['A', 'A', 'A'];
+  var activeInit = 0;
+  var initialsActive = false;
+
+  function startInitialsEntry() {
+    initials = ['A', 'A', 'A'];
+    activeInit = 0;
+    initialsActive = true;
+    updateInitialBoxes();
+    document.addEventListener('keydown', handleInitialsKey);
+  }
+
+  function handleInitialsKey(e) {
+    if (!initialsActive) return;
+    var k = e.key;
+    if (k.length === 1 && /[a-zA-Z]/.test(k)) {
+      initials[activeInit] = k.toUpperCase();
+      updateInitialBoxes();
+      if (activeInit < 2) { activeInit++; updateInitialBoxes(); }
+    } else if (k === 'Backspace' && activeInit > 0) {
+      activeInit--;
+      initials[activeInit] = 'A';
+      updateInitialBoxes();
+    } else if (k === 'Enter') {
+      confirmInitials();
+    }
+    e.stopPropagation();
+  }
+
+  function updateInitialBoxes() {
+    for (var i = 0; i < 3; i++) {
+      var box = document.getElementById('init-' + i);
+      box.textContent = initials[i];
+      box.classList.toggle('active', i === activeInit);
+    }
+  }
+
+  function confirmInitials() {
+    if (!initialsActive) return;
+    initialsActive = false;
+    document.removeEventListener('keydown', handleInitialsKey);
+    var final = initials.join('');
+    saveScore(final, score);
+    // Find the new entry's position
+    var scores = getScores();
+    var idx = scores.findIndex(function (s) { return s.score === score && s.initials === final; });
+    document.getElementById('hiscore-entry').style.display = 'none';
+    renderScores('gameover-scores-list', score, idx);
+  }
+
+  // Click/tap on initial boxes to select
+  for (var bi = 0; bi < 3; bi++) {
+    (function (i) {
+      var box = document.getElementById('init-' + i);
+      if (box) box.addEventListener('click', function () {
+        if (!initialsActive) return;
+        activeInit = i;
+        updateInitialBoxes();
+      });
+    }(bi));
+  }
+
+  /* ── Input handling ─────────────────────────── */
+
+  document.addEventListener('keydown', function (e) {
+    if (initialsActive) return;
+
+    if (currentScreen === 'game') {
+      if (e.key === 'ArrowLeft'  || e.key === 'a') { e.preventDefault(); pLeft  = true; }
+      if (e.key === 'ArrowRight' || e.key === 'd') { e.preventDefault(); pRight = true; }
+      if ((e.key === ' ' || e.key === 'Enter') && gameState === 'waiting') {
+        e.preventDefault();
+        launchBall();
+      }
+    }
+
+    if (e.key === 'Escape') {
+      if (currentScreen === 'game') {
+        if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+        arcadeExit();
+      } else if (currentScreen === 'lobby') {
+        arcadeExit();
+      }
+    }
+  });
+
+  document.addEventListener('keyup', function (e) {
+    if (e.key === 'ArrowLeft'  || e.key === 'a') pLeft  = false;
+    if (e.key === 'ArrowRight' || e.key === 'd') pRight = false;
+  });
+
+  // Canvas mouse
+  document.addEventListener('mousemove', function (e) {
+    if (currentScreen !== 'game' || !canvas) return;
+    mouseX = canvasClientX(e.clientX);
+  });
+
+  document.addEventListener('click', function (e) {
+    if (currentScreen !== 'game' || !canvas) return;
+    if (e.target === canvas && gameState === 'waiting') launchBall();
+  });
+
+  // Canvas touch
+  function onTouchMove(e) {
+    if (currentScreen !== 'game' || !canvas) return;
+    e.preventDefault();
+    mouseX = canvasClientX(e.touches[0].clientX);
+  }
+  function onTouchStart(e) {
+    if (currentScreen !== 'game' || !canvas) return;
+    e.preventDefault();
+    mouseX = canvasClientX(e.touches[0].clientX);
+    if (gameState === 'waiting') launchBall();
+  }
+  function onTouchEnd() { mouseX = null; }
+
+  document.addEventListener('touchmove',  onTouchMove,  { passive: false });
+  document.addEventListener('touchstart', onTouchStart, { passive: false });
+  document.addEventListener('touchend',   onTouchEnd);
+
+  // Canvas mouseleave — fall back to keyboard
+  document.addEventListener('mouseleave', function () { mouseX = null; });
+
+  /* ── Button wiring ──────────────────────────── */
+
+  document.getElementById('cab-breakout').addEventListener('click', function () {
+    showScreen('game');
+    setTimeout(function () { initBreakout(); }, 0);
+  });
+  document.getElementById('cab-breakout').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showScreen('game'); setTimeout(initBreakout, 0); }
+  });
+
+  document.getElementById('lobby-exit').addEventListener('click', arcadeExit);
+
+  document.getElementById('game-exit').addEventListener('click', function () {
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    showScreen('lobby');
+    renderScores('lobby-scores-list');
+  });
+
+  document.getElementById('play-again').addEventListener('click', function () {
+    showScreen('game');
+    setTimeout(initBreakout, 0);
+  });
+
+  document.getElementById('goto-lobby').addEventListener('click', function () {
+    showScreen('lobby');
+    renderScores('lobby-scores-list');
+  });
+
+  window.addEventListener('resize', fitCanvas);
+
+  /* ── Init ───────────────────────────────────── */
+
+  powerOn();
+  renderScores('lobby-scores-list');
+  document.fonts.ready.then(drawBreakoutPreview).catch(drawBreakoutPreview);
+
+}());
+</script>
+
+</body>
+</html>
