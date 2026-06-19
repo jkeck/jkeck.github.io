@@ -569,8 +569,9 @@ title: Arcade
   }
 
   function navigate() {
-    if (window.history.length > 1) { history.back(); }
-    else { window.location.href = '/'; }
+    var returnUrl = sessionStorage.getItem('jk-arcade-return');
+    sessionStorage.removeItem('jk-arcade-return');
+    window.location.href = returnUrl || '/';
   }
 
   function crtOut(cb) {

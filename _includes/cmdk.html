@@ -127,6 +127,7 @@
 
   function arcadeOut() {
     sessionStorage.setItem('jk-arcade-from', ARCADE_TRANSITION);
+    sessionStorage.setItem('jk-arcade-return', window.location.href);
     if (ARCADE_TRANSITION === 'pixel') {
       pixelDissolveOut(function () { window.location.href = '/arcade/'; });
     } else {
@@ -304,6 +305,14 @@
   document.querySelectorAll('.cmdk-hint').forEach(function (btn) {
     btn.style.cursor = 'pointer';
     btn.addEventListener('click', function (e) { e.preventDefault(); open(); });
+  });
+
+  // Reset any CRT transition styles if this page is restored from BFCache
+  window.addEventListener('pageshow', function (e) {
+    if (e.persisted) {
+      var h = document.documentElement;
+      h.style.transition = h.style.transform = h.style.filter = h.style.opacity = h.style.transformOrigin = '';
+    }
   });
 }());
 </script>
