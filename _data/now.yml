@@ -1,6 +1,6 @@
 # Feeds the home page ticker — keep this short
 blurb: "Wiring an AI Pi agent, interactive thorugh a telegram bot. Learning Astro for some side projects."
-date: "THU · JUN 18"
+date: "FRI · JUN 19"
 
 # Time-bound ticker overrides — active between start/end (ISO 8601, include timezone offset)
 # When active: home page bar scrolls this message; /now shows a live alert banner
@@ -22,6 +22,12 @@ tickers:
 # alt: accessibility description
 # caption: optional text shown below the image
 # snapshot: {}   # set to empty map (or remove key) to disable
+snapshot:
+  image: /images/now-2026-06-19.jpg
+  alt: "Tiger sleeping peacefully"
+  caption: "Tiger napping · Jun 2026"
+  start: "2026-06-19T14:00:00-07:00"
+  end: "2026-06-19T15:00:00-07:00"
 # Example:
 # snapshot:
 #   image: /images/now.jpg
@@ -31,7 +37,7 @@ tickers:
 #   end:   "2026-06-30T23:59:00-07:00"
 
 # Now page content — edit sections below to update
-updated: "Jun 18, 2026"
+updated: "Jun 19, 2026"
 
 work: >
   Engineering manager at Ontra, leading a team building legal technology.
@@ -50,4 +56,3 @@ watching_reading:
     type: book
     author: "Chip Huyen"
     notes: "Coming back around to some of the chapters around fine-tuning."
-
