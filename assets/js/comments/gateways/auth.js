@@ -14,10 +14,12 @@ export class SupabaseAuthGateway {
   }
 
   async signInWithGoogle() {
-    await this._client.auth.signInWithOAuth({
+    const redirectTo = window.location.origin + window.location.pathname
+    const { error } = await this._client.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.href },
+      options: { redirectTo },
     })
+    if (error) throw error
   }
 
   async signInAnonymously() {
