@@ -1,7 +1,7 @@
 // Composition root — only place that knows about Supabase client + DOM + config.
 // Wires: client → gateways → services → UI components.
 import { createClient } from '@supabase/supabase-js'
-import { SUPABASE_URL, SUPABASE_ANON_KEY, getPostSlug } from './config.js'
+import { SUPABASE_URL, SUPABASE_ANON_KEY, OWNER_ID, getPostSlug } from './config.js'
 import { SupabaseAuthGateway } from './gateways/auth.js'
 import { SupabaseLikesGateway } from './gateways/likes.js'
 import { SupabaseCommentsGateway } from './gateways/comments.js'
@@ -63,7 +63,7 @@ let formState = { user: currentUser, error: /** @type {string|null} */ (null), s
 
 async function refreshComments() {
   const comments = await commentService.load(postSlug)
-  commentState = { comments, currentUserId: currentUser?.id ?? null }
+  commentState = { comments, currentUserId: currentUser?.id ?? null, isOwner: currentUser?.id === OWNER_ID }
   commentList.render(commentState)
 }
 
@@ -91,7 +91,7 @@ const commentForm = new CommentForm({
 authGateway.onChange((user) => {
   currentUser = user
   authControls.render({ user })
-  commentState = { ...commentState, currentUserId: user?.id ?? null }
+  commentState = { ...commentState, currentUserId: user?.id ?? null, isOwner: user?.id === OWNER_ID }
   formState = { ...formState, user }
   commentList.render(commentState)
   commentForm.render(formState)

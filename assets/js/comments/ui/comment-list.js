@@ -77,7 +77,7 @@ export class CommentList {
       body.textContent = comment.body
       item.appendChild(body)
 
-      if (state.currentUserId && comment.userId === state.currentUserId) {
+      if (state.currentUserId && (comment.userId === state.currentUserId || state.isOwner)) {
         const deleteBtn = document.createElement('button')
         deleteBtn.className = 'comment__delete engagement-btn engagement-btn--ghost'
         deleteBtn.textContent = 'Delete'
