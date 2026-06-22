@@ -11,6 +11,10 @@
   },
   "include": [
     "assets/js/comments/**/*.js",
-    "test/**/*.js"
+    "test/unit/**/*.js",
+    "test/fakes/**/*.js"
+  ],
+  "exclude": [
+    "test/integration/**/*.js"
   ]
 }
