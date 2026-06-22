@@ -17,3 +17,14 @@ permalink: pretty
 # Arcade easter egg config
 arcade:
   transition: crt   # crt | pixel
+
+# Dev-only files — not copied into _site/
+exclude:
+  - node_modules
+  - test
+  - supabase
+  - scripts
+  - package.json
+  - package-lock.json
+  - tsconfig.json
+  - vitest.config.js

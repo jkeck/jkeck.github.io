@@ -4,3 +4,6 @@ _site
 !.claude/commands/
 !.claude/commands/*
 Gemfile.lock
+node_modules/
+.supabase/
+.jekyll-cache/
