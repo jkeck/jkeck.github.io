@@ -74,7 +74,268 @@ layout: default
   </div>
 </div>
 
-<section id="post-engagement" data-post-slug="{{ page.url }}"></section>
+<style>
+  /* ── Engagement widget: likes + comments ─────────────────────────────── */
+
+  #post-engagement {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 36px 80px;
+  }
+
+  .engagement-rule {
+    border: none;
+    border-top: 2px double var(--rule);
+    margin: 0 0 36px;
+  }
+
+  /* ── Auth strip ────────────────────────────────────────────────────────── */
+
+  .engagement-auth {
+    margin-bottom: 28px;
+    min-height: 30px;
+  }
+
+  .engagement-identity {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .engagement-avatar {
+    border-radius: 50%;
+    opacity: 0.85;
+    flex-shrink: 0;
+  }
+
+  .engagement-display-name {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-sub);
+    letter-spacing: 0.04em;
+  }
+
+  /* ── Shared button base ────────────────────────────────────────────────── */
+
+  .engagement-btn {
+    all: unset;
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    border-radius: 4px;
+    transition: color 0.15s, background 0.15s, border-color 0.15s, opacity 0.15s;
+  }
+  .engagement-btn:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 3px;
+  }
+
+  .engagement-btn--primary {
+    padding: 7px 16px;
+    background: var(--amber);
+    color: var(--bg);
+    font-weight: 500;
+  }
+  .engagement-btn--primary:hover { background: var(--text); }
+  .engagement-btn--primary:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  .engagement-btn--ghost {
+    padding: 5px 10px;
+    color: var(--muted);
+    border: 1px solid var(--rule);
+  }
+  .engagement-btn--ghost:hover { color: var(--text-sub); border-color: var(--dim); }
+
+  /* ── Like button ───────────────────────────────────────────────────────── */
+
+  .engagement-likes { margin-bottom: 44px; }
+
+  .like-btn {
+    all: unset;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    padding: 4px 0;
+    border-radius: 4px;
+    transition: color 0.2s;
+  }
+  .like-btn:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 4px;
+  }
+  .like-btn:not(:disabled):hover { color: var(--amber); }
+  .like-btn--active { color: var(--amber); }
+  .like-btn--active:hover { color: var(--text-sub) !important; }
+  .like-btn:disabled { cursor: default; opacity: 0.55; }
+
+  /* Heart glyph — spring bounce on click */
+  .like-btn > span:first-child {
+    font-size: 17px;
+    line-height: 1;
+    display: inline-block;
+    transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .like-btn:not(:disabled):hover > span:first-child { transform: scale(1.25); }
+  .like-btn--active > span:first-child                { transform: scale(1.12); }
+
+  /* ── Comments section ──────────────────────────────────────────────────── */
+
+  .engagement-comments {
+    border-top: 1px solid var(--rule2);
+    padding-top: 36px;
+  }
+
+  /* "Comments" label */
+  .engagement-comment-list::before {
+    content: "Comments";
+    display: block;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--dim);
+    margin-bottom: 20px;
+  }
+
+  .comments-empty {
+    font-family: var(--serif);
+    font-size: 15px;
+    font-style: italic;
+    color: var(--dim);
+    margin-bottom: 32px;
+  }
+  /* Hide the label prefix when empty so "Comments" doesn't float alone */
+  .engagement-comment-list:has(.comments-empty)::before { display: none; }
+
+  .comments-list {
+    list-style: none;
+    margin-bottom: 36px;
+  }
+
+  .comment {
+    padding: 18px 0 18px 18px;
+    border-left: 1px solid var(--rule2);
+    transition: border-color 0.2s;
+  }
+  .comment + .comment { margin-top: 2px; }
+  .comment:hover { border-left-color: var(--amber); }
+
+  .comment__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 9px;
+  }
+
+  .comment__avatar {
+    border-radius: 50%;
+    opacity: 0.8;
+    flex-shrink: 0;
+  }
+
+  .comment__name {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--text-sub);
+    letter-spacing: 0.05em;
+  }
+
+  .comment__time {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--dim);
+    letter-spacing: 0.03em;
+    margin-left: auto;
+  }
+
+  .comment__body {
+    font-family: var(--serif);
+    font-size: 16px;
+    line-height: 1.68;
+    color: var(--text-sub);
+  }
+
+  .comment__delete {
+    all: unset;
+    cursor: pointer;
+    display: inline-block;
+    margin-top: 10px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--dim);
+    letter-spacing: 0.06em;
+    border-radius: 3px;
+    transition: color 0.15s;
+  }
+  .comment__delete:hover { color: var(--muted); }
+  .comment__delete:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+
+  /* ── Comment form ──────────────────────────────────────────────────────── */
+
+  .comment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .comment-form__label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+
+  .comment-form__textarea {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: var(--serif);
+    font-size: 16px;
+    line-height: 1.6;
+    padding: 12px 14px;
+    resize: vertical;
+    min-height: 100px;
+    transition: border-color 0.2s;
+  }
+  .comment-form__textarea::placeholder { color: var(--dim); }
+  .comment-form__textarea:focus { outline: none; border-color: var(--amber); }
+  .comment-form__textarea:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  .comment-form__error {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: #b86b5a;
+    letter-spacing: 0.04em;
+  }
+
+  .comment-form__submit { align-self: flex-start; }
+
+  .comment-form__sign-in-prompt {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+    font-style: normal;
+  }
+
+  /* ── Responsive ────────────────────────────────────────────────────────── */
+
+  @media (max-width: 768px) {
+    #post-engagement { padding: 0 20px 60px; }
+  }
+</style>
+
+<section id="post-engagement" data-post-slug="{{ page.url }}">
+  <hr class="engagement-rule">
+</section>
 <script type="importmap">
 { "imports": { "@supabase/supabase-js": "/assets/js/vendor/supabase-2.108.2.js" } }
 </script>
