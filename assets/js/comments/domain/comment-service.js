@@ -1,7 +1,8 @@
-// Implemented in Slice 2
 /** @typedef {import('../ports.js').CommentsGateway} CommentsGateway */
 /** @typedef {import('../ports.js').AuthGateway} AuthGateway */
 /** @typedef {import('../ports.js').Comment} Comment */
+
+import { normalizeBody } from './sanitize.js'
 
 export class AuthRequiredError extends Error {
   constructor() {
@@ -20,16 +21,21 @@ export class CommentService {
     this._auth = authGateway
   }
 
-  /** @param {string} _postSlug @returns {Promise<Comment[]>} */
-  async load(_postSlug) {
-    return []
+  /** @param {string} postSlug @returns {Promise<Comment[]>} */
+  async load(postSlug) {
+    return this._comments.list(postSlug)
   }
 
-  /** @param {string} _postSlug @param {string} _rawBody @returns {Promise<Comment>} */
-  async add(_postSlug, _rawBody) {
-    throw new Error('not implemented')
+  /** @param {string} postSlug @param {string} rawBody @returns {Promise<Comment>} */
+  async add(postSlug, rawBody) {
+    const user = this._auth.currentUser()
+    if (!user || user.isAnonymous) throw new AuthRequiredError()
+    const body = normalizeBody(rawBody)
+    return this._comments.add(postSlug, body)
   }
 
-  /** @param {string} _id @returns {Promise<void>} */
-  async remove(_id) {}
+  /** @param {string} id @returns {Promise<void>} */
+  async remove(id) {
+    return this._comments.remove(id)
+  }
 }
