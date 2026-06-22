@@ -169,6 +169,47 @@ The key is the exact string the user must type (lowercase). The value is the out
 
 ---
 
+## Comments & Likes (Supabase)
+
+Blog posts load `assets/js/comments/index.js` as a module. The widget talks directly to Supabase from the browser — no server required.
+
+**Key files:**
+- `assets/js/comments/config.js` — Supabase project URL + anon key (public, safe to ship)
+- `assets/js/comments/` — gateways / domain / ui layers
+- `supabase/migrations/` — all schema migrations (apply with `supabase db push`)
+- `assets/js/vendor/supabase-2.108.2.js` — vendored ESM SDK (update by re-fetching + bumping version in import map)
+
+**Local dev / testing:**
+```bash
+supabase start          # start local Docker stack
+supabase db reset       # wipe + replay all migrations (required before integration tests)
+npm test                # unit + integration suite (57 tests)
+npm run typecheck       # tsc --noEmit JSDoc type check
+```
+
+**Deploying schema changes:**
+```bash
+supabase link --project-ref bgapignqwufzcjprycuj   # one-time, prompts for DB password
+supabase migration repair --status applied <name>   # mark manually-applied migrations as done
+supabase db push                                    # apply pending migrations to remote
+```
+
+**Manual Supabase dashboard steps (one-time):**
+- **Auth → Providers → Anonymous** — enable anonymous sign-ins (required for likes)
+- **Auth → Providers → Google** — enable Google OAuth, paste client ID + secret from Google Cloud Console; set callback URL in GCP to the Supabase OAuth callback shown in the dashboard
+- **Auth → URL Configuration → Redirect URLs** — add `http://localhost:4000` for local testing
+- **Auth → Attack Protection → CAPTCHA** — enable Cloudflare Turnstile and paste the Turnstile secret key to gate anonymous sign-in against bots (Turnstile site key also needed in the UI — Slice 4)
+
+**Rate limiting:** a DB trigger (`check_comment_rate_limit`) enforces max 5 comments per user per 60 seconds at the Postgres level. No client-side enforcement needed.
+
+**Bumping the vendored SDK:**
+1. `curl -L 'https://esm.sh/@supabase/supabase-js@<new-version>?bundle&target=es2020' -o assets/js/vendor/supabase-<new-version>.js`
+2. Update the import map version in `_layouts/post.html`
+3. Update `@supabase/supabase-js` version in `package.json` + `npm install`
+4. Commit both files
+
+---
+
 ## Constraints
 
 - No placeholder or hardcoded content (fake stats, lorem ipsum, etc.) without a plan to make it real.
