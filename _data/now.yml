@@ -48,6 +48,8 @@ building:
     notes: "A fun website for a group of friends, mostly static, but working with PeerJS for live p2p voting features."
   - name: "AI Pi agent"
     notes: "Wiring a Raspberry Pi with an LLM agent layer, AI-Assistant, home dashboards, and improving via feedback loops."
+  - name: "This website (jessiekeck.com)"
+    notes: "A place for my writing, sharing about my life, my work, and to explore fun web based endeavours. Poke around and see if you can't find something lurking beneath the surface."
 
 watching_reading:
   - title: "The Rehearsal"

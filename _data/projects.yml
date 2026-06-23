@@ -3,6 +3,11 @@
   tags: [raspberry pi, llm, self-hosted]
   badge: live
 
+- name: This Website
+  blurb: "An ever evolving site with writing, status updates, live insights into my life, and easter eggs. Can you find where to <code>INSERT COINS</code>?"
+  tags: [web dev, easter eggs]
+  badge: live
+
 - name: OSS Contributions
   blurb: "Long-running contributor to Blacklight, Samvera, and a handful of smaller Ruby tools that show up in research libraries everywhere."
   tags: [ruby, open source]
