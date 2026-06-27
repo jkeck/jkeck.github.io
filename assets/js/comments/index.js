@@ -1,7 +1,7 @@
 // Composition root — only place that knows about Supabase client + DOM + config.
 // Wires: client → gateways → services → UI components.
 import { createClient } from '@supabase/supabase-js'
-import { SUPABASE_URL, SUPABASE_ANON_KEY, OWNER_ID, getPostSlug } from './config.js'
+import { SUPABASE_URL, SUPABASE_ANON_KEY, OWNER_ID, TURNSTILE_SITE_KEY, getPostSlug } from './config.js'
 import { SupabaseAuthGateway } from './gateways/auth.js'
 import { SupabaseLikesGateway } from './gateways/likes.js'
 import { SupabaseCommentsGateway } from './gateways/comments.js'
@@ -22,7 +22,28 @@ const authGateway = new SupabaseAuthGateway(client)
 const likesGateway = new SupabaseLikesGateway(client)
 const commentsGateway = new SupabaseCommentsGateway(client)
 
-const likeService = new LikeService(likesGateway, authGateway)
+// --- Turnstile CAPTCHA for anonymous likes ---
+// Renders an invisible widget; fires only when an anonymous sign-in is needed.
+// If the site key is a placeholder or the Turnstile script hasn't loaded, getCaptchaToken is null
+// and sign-ins proceed without CAPTCHA (acceptable during local dev).
+/** @type {(() => Promise<string>) | null} */
+const getCaptchaToken = (() => {
+  if (!TURNSTILE_SITE_KEY || TURNSTILE_SITE_KEY.startsWith('REPLACE')) return null
+  const ts = /** @type {any} */ (typeof window !== 'undefined' ? window : {}).turnstile
+  if (!ts) return null
+  const container = document.createElement('div')
+  container.style.display = 'none'
+  document.body.appendChild(container)
+  const widgetId = ts.render(container, { sitekey: TURNSTILE_SITE_KEY, size: 'invisible' })
+  return () => new Promise((resolve, reject) => {
+    ts.execute(widgetId, {
+      callback: resolve,
+      'error-callback': () => reject(new Error('Turnstile challenge failed')),
+    })
+  })
+})()
+
+const likeService = new LikeService(likesGateway, authGateway, getCaptchaToken)
 const commentService = new CommentService(commentsGateway, authGateway)
 
 // --- Auth controls ---
@@ -58,7 +79,7 @@ commentFormEl.className = 'engagement-comment-form'
 commentsEl.appendChild(commentFormEl)
 
 let currentUser = /** @type {import('./ports.js').User|null} */ (null)
-let commentState = { comments: /** @type {import('./ports.js').Comment[]} */ ([]), currentUserId: /** @type {string|null} */ (null) }
+let commentState = { comments: /** @type {import('./ports.js').Comment[]} */ ([]), currentUserId: /** @type {string|null} */ (null), isOwner: false }
 let formState = { user: currentUser, error: /** @type {string|null} */ (null), submitting: false }
 
 async function refreshComments() {
@@ -70,6 +91,10 @@ async function refreshComments() {
 const commentList = new CommentList({
   onRemove: async (id) => {
     await commentService.remove(id)
+    await refreshComments()
+  },
+  onApprove: async (id) => {
+    await commentService.approve(id)
     await refreshComments()
   },
 }).mount(commentListEl)

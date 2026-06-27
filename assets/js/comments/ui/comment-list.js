@@ -5,6 +5,7 @@
  * @typedef {Object} CommentListDeps
  * @property {string} [currentUserId]
  * @property {(id: string) => Promise<void>} onRemove
+ * @property {(id: string) => Promise<void>} [onApprove]
  */
 
 export class CommentList {
@@ -22,7 +23,7 @@ export class CommentList {
   }
 
   /**
-   * @param {{ comments: Comment[], currentUserId?: string|null }} state
+   * @param {{ comments: Comment[], currentUserId?: string|null, isOwner?: boolean }} state
    */
   render(state) {
     if (!this._el) return
@@ -77,6 +78,27 @@ export class CommentList {
       body.textContent = comment.body
       item.appendChild(body)
 
+      const isPending = comment.status === 'pending'
+
+      // Pending badge — shown to the comment's own author only
+      if (isPending && state.currentUserId && comment.userId === state.currentUserId) {
+        const badge = document.createElement('span')
+        badge.className = 'comment__pending'
+        badge.textContent = 'Pending review'
+        item.appendChild(badge)
+      }
+
+      // Approve button — shown to site owner for pending comments only
+      if (isPending && state.isOwner && this._deps.onApprove) {
+        const approveBtn = document.createElement('button')
+        approveBtn.className = 'comment__approve engagement-btn engagement-btn--ghost'
+        approveBtn.textContent = 'Approve'
+        approveBtn.setAttribute('aria-label', 'Approve this comment')
+        approveBtn.addEventListener('click', () => this._deps.onApprove?.(comment.id))
+        item.appendChild(approveBtn)
+      }
+
+      // Delete button — own comment or site owner
       if (state.currentUserId && (comment.userId === state.currentUserId || state.isOwner)) {
         const deleteBtn = document.createElement('button')
         deleteBtn.className = 'comment__delete engagement-btn engagement-btn--ghost'

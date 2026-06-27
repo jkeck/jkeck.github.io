@@ -54,6 +54,7 @@ export class LikeButton {
     this._el = null
   }
 
+  /** @private */
   async _handleClick() {
     const prev = { ...this._state }
     // Optimistic update

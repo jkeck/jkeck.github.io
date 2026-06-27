@@ -261,20 +261,36 @@ layout: default
     color: var(--text-sub);
   }
 
-  .comment__delete {
+  .comment__delete,
+  .comment__approve {
     all: unset;
     cursor: pointer;
     display: inline-block;
     margin-top: 10px;
+    margin-right: 10px;
     font-family: var(--mono);
     font-size: 10px;
-    color: var(--dim);
     letter-spacing: 0.06em;
     border-radius: 3px;
     transition: color 0.15s;
   }
+  .comment__delete { color: var(--dim); }
   .comment__delete:hover { color: var(--muted); }
   .comment__delete:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+
+  .comment__approve { color: var(--amber); }
+  .comment__approve:hover { color: var(--text); }
+  .comment__approve:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+
+  .comment__pending {
+    display: inline-block;
+    margin-top: 8px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--dim);
+    letter-spacing: 0.06em;
+    font-style: italic;
+  }
 
   /* ── Comment form ──────────────────────────────────────────────────────── */
 
@@ -336,6 +352,8 @@ layout: default
 <section id="post-engagement" data-post-slug="{{ page.url }}">
   <hr class="engagement-rule">
 </section>
+<!-- Turnstile: loaded before the module so window.turnstile is available at mount time -->
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
 <script type="importmap">
 { "imports": { "@supabase/supabase-js": "/assets/js/vendor/supabase-2.108.2.js" } }
 </script>

@@ -108,3 +108,28 @@ describe('CommentService.remove', () => {
     await expect(service.remove('nonexistent-id')).resolves.toBeUndefined()
   })
 })
+
+describe('CommentService.add — returns pending status', () => {
+  it('newly added comment has status pending', async () => {
+    const { service, auth } = makeService()
+    await auth.signInWithGoogle()
+    const comment = await service.add('my-post', 'hello')
+    expect(comment.status).toBe('pending')
+  })
+})
+
+describe('CommentService.approve', () => {
+  it('sets a pending comment to visible', async () => {
+    const { service, auth } = makeService()
+    await auth.signInWithGoogle()
+    const comment = await service.add('my-post', 'hello')
+    await service.approve(comment.id)
+    const result = await service.load('my-post')
+    expect(result.find(c => c.id === comment.id)?.status).toBe('visible')
+  })
+
+  it('is a no-op for an unknown id', async () => {
+    const { service } = makeService()
+    await expect(service.approve('nonexistent-id')).resolves.toBeUndefined()
+  })
+})

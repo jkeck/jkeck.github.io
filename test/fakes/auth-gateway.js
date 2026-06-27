@@ -17,7 +17,9 @@ export class FakeAuthGateway {
     this._setUser({ id: 'google-user-1', isAnonymous: false, displayName: 'Test User', avatarUrl: null })
   }
 
-  async signInAnonymously() {
+  /** @param {string} [captchaToken] */
+  async signInAnonymously(captchaToken) {
+    this.lastCaptchaToken = captchaToken
     this._setUser({ id: 'anon-user-1', isAnonymous: true, displayName: null, avatarUrl: null })
   }
 

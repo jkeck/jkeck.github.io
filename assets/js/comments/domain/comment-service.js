@@ -38,4 +38,9 @@ export class CommentService {
   async remove(id) {
     return this._comments.remove(id)
   }
+
+  /** @param {string} id @returns {Promise<void>} */
+  async approve(id) {
+    return this._comments.approve(id)
+  }
 }

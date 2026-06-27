@@ -9,6 +9,7 @@ function makeComment(overrides = {}) {
     userId: 'user-a',
     postSlug: 'test-post',
     body: 'Hello world',
+    status: 'visible',
     createdAt: new Date().toISOString(),
     displayName: 'Alice',
     avatarUrl: null,
@@ -17,9 +18,10 @@ function makeComment(overrides = {}) {
 }
 
 function makeList() {
+  /** @type {string[]} */
   const removed = []
   const el = document.createElement('div')
-  const list = new CommentList({ onRemove: (id) => removed.push(id) }).mount(el)
+  const list = new CommentList({ onRemove: async (id) => { removed.push(id) } }).mount(el)
   return { list, el, removed }
 }
 
@@ -91,5 +93,91 @@ describe('CommentList — destroy', () => {
     list.render({ comments: [makeComment()], currentUserId: null })
     list.destroy()
     expect(el.innerHTML).toBe('')
+  })
+})
+
+describe('CommentList — pending badge', () => {
+  it('shows pending badge on own pending comment', () => {
+    const { list, el } = makeList()
+    list.render({
+      comments: [makeComment({ userId: 'user-a', status: 'pending' })],
+      currentUserId: 'user-a',
+    })
+    expect(el.querySelector('.comment__pending')).not.toBeNull()
+  })
+
+  it('does not show pending badge on a visible comment', () => {
+    const { list, el } = makeList()
+    list.render({
+      comments: [makeComment({ userId: 'user-a', status: 'visible' })],
+      currentUserId: 'user-a',
+    })
+    expect(el.querySelector('.comment__pending')).toBeNull()
+  })
+
+  it('does not show pending badge on a pending comment for a different user', () => {
+    const { list, el } = makeList()
+    list.render({
+      comments: [makeComment({ userId: 'user-b', status: 'pending' })],
+      currentUserId: 'user-a',
+    })
+    expect(el.querySelector('.comment__pending')).toBeNull()
+  })
+})
+
+describe('CommentList — approve button', () => {
+  function makeListWithApprove() {
+    /** @type {string[]} */
+    const removed = []
+    /** @type {string[]} */
+    const approved = []
+    const el = document.createElement('div')
+    const list = new CommentList({
+      onRemove: async (id) => { removed.push(id) },
+      onApprove: async (id) => { approved.push(id) },
+    }).mount(el)
+    return { list, el, removed, approved }
+  }
+
+  it('shows approve button on pending comment for owner', () => {
+    const { list, el } = makeListWithApprove()
+    list.render({
+      comments: [makeComment({ userId: 'user-b', status: 'pending' })],
+      currentUserId: 'owner-id',
+      isOwner: true,
+    })
+    expect(el.querySelector('.comment__approve')).not.toBeNull()
+  })
+
+  it('does not show approve button on visible comment even for owner', () => {
+    const { list, el } = makeListWithApprove()
+    list.render({
+      comments: [makeComment({ userId: 'user-b', status: 'visible' })],
+      currentUserId: 'owner-id',
+      isOwner: true,
+    })
+    expect(el.querySelector('.comment__approve')).toBeNull()
+  })
+
+  it('does not show approve button for non-owner', () => {
+    const { list, el } = makeListWithApprove()
+    list.render({
+      comments: [makeComment({ userId: 'user-b', status: 'pending' })],
+      currentUserId: 'user-a',
+      isOwner: false,
+    })
+    expect(el.querySelector('.comment__approve')).toBeNull()
+  })
+
+  it('calls onApprove with the comment id when clicked', () => {
+    const { list, el, approved } = makeListWithApprove()
+    list.render({
+      comments: [makeComment({ id: 'comment-42', userId: 'user-b', status: 'pending' })],
+      currentUserId: 'owner-id',
+      isOwner: true,
+    })
+    const btn = /** @type {HTMLElement|null} */ (el.querySelector('.comment__approve'))
+    btn?.click()
+    expect(approved).toEqual(['comment-42'])
   })
 })

@@ -54,3 +54,43 @@ export async function deleteUsers(/** @type {string[]} */ ...ids) {
     await admin.auth.admin.deleteUser(id)
   }
 }
+
+/** Site owner UID — must match the hardcoded value in RLS policies. */
+export const OWNER_ID = '0eccb957-ca0f-44bf-bc1d-e308dd330d26'
+
+/**
+ * Create (or reuse) the owner user and return a signed-in client.
+ * Uses a fixed ID matching the hardcoded RLS policies.
+ */
+export async function makeOwner() {
+  const email = 'owner@test.example'
+  const password = 'Test-Password-123!'
+
+  // createUser is idempotent-ish — ignore "already exists" errors
+  await admin.auth.admin.createUser({
+    id: OWNER_ID,
+    email,
+    password,
+    email_confirm: true,
+  })
+
+  const client = createClient(LOCAL_URL, LOCAL_ANON_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  })
+  const { error } = await client.auth.signInWithPassword({ email, password })
+  if (error) throw new Error(`makeOwner signIn: ${error.message}`)
+  return { client }
+}
+
+/**
+ * Sign in anonymously and return a client.
+ * Requires enable_anonymous_sign_ins = true in supabase/config.toml.
+ */
+export async function makeAnonymousUser() {
+  const client = createClient(LOCAL_URL, LOCAL_ANON_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  })
+  const { data, error } = await client.auth.signInAnonymously()
+  if (error) throw new Error(`makeAnonymousUser: ${error.message}`)
+  return { client, user: data.user }
+}

@@ -22,8 +22,10 @@ export class SupabaseAuthGateway {
     if (error) throw error
   }
 
-  async signInAnonymously() {
-    await this._client.auth.signInAnonymously()
+  /** @param {string} [captchaToken] */
+  async signInAnonymously(captchaToken) {
+    const options = captchaToken ? { options: { captchaToken } } : undefined
+    await this._client.auth.signInAnonymously(options)
   }
 
   async signOut() {

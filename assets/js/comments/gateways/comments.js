@@ -14,7 +14,6 @@ export class SupabaseCommentsGateway {
       .from('comments')
       .select('id, user_id, post_slug, body, status, created_at')
       .eq('post_slug', postSlug)
-      .eq('status', 'visible')
       .order('created_at', { ascending: true })
     if (error) throw error
     return (data ?? []).map(row => ({
@@ -22,6 +21,7 @@ export class SupabaseCommentsGateway {
       userId: row.user_id,
       postSlug: row.post_slug,
       body: row.body,
+      status: row.status,
       createdAt: row.created_at,
       displayName: null,
       avatarUrl: null,
@@ -47,6 +47,7 @@ export class SupabaseCommentsGateway {
       userId: data.user_id,
       postSlug: data.post_slug,
       body: data.body,
+      status: data.status,
       createdAt: data.created_at,
       displayName: user.user_metadata?.full_name ?? null,
       avatarUrl: user.user_metadata?.avatar_url ?? null,
@@ -58,6 +59,15 @@ export class SupabaseCommentsGateway {
     const { error } = await this._client
       .from('comments')
       .delete()
+      .eq('id', id)
+    if (error) throw error
+  }
+
+  /** @param {string} id @returns {Promise<void>} */
+  async approve(id) {
+    const { error } = await this._client
+      .from('comments')
+      .update({ status: 'visible' })
       .eq('id', id)
     if (error) throw error
   }

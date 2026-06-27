@@ -20,6 +20,7 @@
  * @property {string} userId
  * @property {string} postSlug
  * @property {string} body
+ * @property {'visible'|'pending'|'hidden'} status
  * @property {string} createdAt
  * @property {string|null} [displayName]
  * @property {string|null} [avatarUrl]
@@ -29,7 +30,7 @@
  * @typedef {Object} AuthGateway
  * @property {() => (User|null)} currentUser
  * @property {() => Promise<void>} signInWithGoogle
- * @property {() => Promise<void>} signInAnonymously
+ * @property {(captchaToken?: string) => Promise<void>} signInAnonymously
  * @property {() => Promise<void>} signOut
  * @property {(cb: (u: User|null) => void) => (() => void)} onChange
  */
@@ -47,6 +48,7 @@
  * @property {(postSlug: string) => Promise<Comment[]>} list
  * @property {(postSlug: string, body: string) => Promise<Comment>} add
  * @property {(id: string) => Promise<void>} remove
+ * @property {(id: string) => Promise<void>} approve
  */
 
 export {}

@@ -11,7 +11,10 @@ export class FakeCommentsGateway {
 
   /** @param {string} postSlug @returns {Promise<Comment[]>} */
   async list(postSlug) {
-    return this._comments.filter(c => c.postSlug === postSlug)
+    return this._comments.filter(c =>
+      c.postSlug === postSlug &&
+      (c.status === 'visible' || c.userId === this.currentUserId)
+    )
   }
 
   /** @param {string} postSlug @param {string} body @returns {Promise<Comment>} */
@@ -21,6 +24,7 @@ export class FakeCommentsGateway {
       userId: this.currentUserId,
       postSlug,
       body,
+      status: /** @type {'pending'} */ ('pending'),
       createdAt: new Date().toISOString(),
       displayName: null,
       avatarUrl: null,
@@ -32,5 +36,11 @@ export class FakeCommentsGateway {
   /** @param {string} id @returns {Promise<void>} */
   async remove(id) {
     this._comments = this._comments.filter(c => c.id !== id)
+  }
+
+  /** @param {string} id @returns {Promise<void>} */
+  async approve(id) {
+    const comment = this._comments.find(c => c.id === id)
+    if (comment) comment.status = 'visible'
   }
 }
