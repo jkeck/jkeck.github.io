@@ -349,6 +349,7 @@ layout: default
   }
 </style>
 
+{% if page.comments %}
 <section id="post-engagement" data-post-slug="{{ page.url }}">
   <hr class="engagement-rule">
 </section>
@@ -358,3 +359,4 @@ layout: default
 { "imports": { "@supabase/supabase-js": "/assets/js/vendor/supabase-2.108.2.js" } }
 </script>
 <script type="module" src="/assets/js/comments/index.js"></script>
+{% endif %}
