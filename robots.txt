@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /arcade/
+
+Sitemap: https://jessiekeck.com/sitemap.xml
