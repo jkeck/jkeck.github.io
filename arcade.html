@@ -15,6 +15,13 @@ sitemap: false
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js"
+    }
+  }
+  </script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -205,6 +212,7 @@ sitemap: false
       padding-bottom: 6px;
       border-bottom: 1px solid var(--rule);
     }
+    .scores-title-2nd { margin-top: 22px; }
 
     .score-row {
       display: grid;
@@ -253,6 +261,7 @@ sitemap: false
 
     .game-body {
       flex: 1;
+      position: relative;
       display: flex; align-items: center; justify-content: center;
       padding: 16px; overflow: hidden;
     }
@@ -262,6 +271,23 @@ sitemap: false
       image-rendering: pixelated;
       image-rendering: crisp-edges;
     }
+
+    #canyon-canvas {
+      display: block;
+      width: 100%; height: 100%;
+      border-radius: 6px;
+    }
+
+    .game-hint {
+      position: absolute;
+      left: 50%; bottom: 16%;
+      transform: translateX(-50%);
+      font-size: 11px; letter-spacing: 0.16em;
+      color: var(--dim); text-transform: uppercase;
+      pointer-events: none; white-space: nowrap;
+      animation: blink-text 1.2s step-end infinite;
+    }
+    .game-body.canyon-running .game-hint { visibility: hidden; }
 
 
     /* ── GAME OVER ──────────────────────────────── */
@@ -413,10 +439,10 @@ sitemap: false
         <div class="cab-name">Breakout</div>
         <div class="cab-status press-start">Press Start</div>
       </div>
-      <div class="cabinet coming-soon" aria-hidden="true">
-        <div class="cab-screen-placeholder">?</div>
-        <div class="cab-name">???</div>
-        <div class="cab-status">Coming Soon</div>
+      <div class="cabinet" id="cab-canyon" role="button" tabindex="0" aria-label="Play Canyon Run">
+        <canvas class="cab-preview" id="preview-canyon" width="160" height="120" aria-hidden="true"></canvas>
+        <div class="cab-name">Canyon Run</div>
+        <div class="cab-status press-start" id="canyon-status">Press Start</div>
       </div>
       <div class="cabinet coming-soon" aria-hidden="true">
         <div class="cab-screen-placeholder">?</div>
@@ -427,7 +453,9 @@ sitemap: false
 
     <div class="scores-panel">
       <div class="scores-title">High Scores — Breakout</div>
-      <div id="lobby-scores-list"></div>
+      <div id="lobby-scores-breakout"></div>
+      <div class="scores-title scores-title-2nd">High Scores — Canyon Run</div>
+      <div id="lobby-scores-canyon"></div>
     </div>
 
     <button class="exit-btn" id="lobby-exit">Exit Arcade</button>
@@ -439,17 +467,23 @@ sitemap: false
   <div id="screen-game" class="screen" style="display:none">
 
     <div class="game-header">
-      <span class="game-label">Breakout</span>
-      <div class="game-stats">
+      <span class="game-label" id="game-label">Breakout</span>
+      <div class="game-stats" id="stats-breakout">
         <span>Score&nbsp;<span class="stat-val" id="hud-score">0</span></span>
         <span>Level&nbsp;<span class="stat-val" id="hud-level">1</span></span>
         <span id="hud-lives">♥♥♥</span>
+      </div>
+      <div class="game-stats" id="stats-canyon" style="display:none">
+        <span>Distance&nbsp;<span class="stat-val" id="hud-distance">0</span>m</span>
+        <span>Speed&nbsp;<span class="stat-val" id="hud-speed">0</span></span>
       </div>
       <button class="exit-btn small" id="game-exit">Lobby</button>
     </div>
 
     <div class="game-body">
       <canvas id="game-canvas" width="440" height="580"></canvas>
+      <canvas id="canyon-canvas" style="display:none"></canvas>
+      <div class="game-hint" id="canyon-hint" style="display:none">click · space · tap to launch</div>
     </div>
 
   </div><!-- /screen-game -->
@@ -478,7 +512,7 @@ sitemap: false
       </div>
 
       <div class="scores-panel">
-        <div class="scores-title">High Scores — Breakout</div>
+        <div class="scores-title" id="gameover-scores-title">High Scores — Breakout</div>
         <div id="gameover-scores-list"></div>
       </div>
 
@@ -501,7 +535,13 @@ sitemap: false
   /* ── Config ─────────────────────────────────── */
 
   var TRANSITION  = {{ site.arcade.transition | default: 'crt' | jsonify }};
-  var SCORES_KEY  = 'jk-arcade-breakout';
+
+  var GAMES = {
+    breakout: { label: 'Breakout',   scoresKey: 'jk-arcade-breakout' },
+    canyon:   { label: 'Canyon Run', scoresKey: 'jk-arcade-canyon' }
+  };
+  var activeGameId = 'breakout';
+  var canyonGame = null; // live Canyon Run instance (module loaded on demand)
 
   /* ── Screen management ──────────────────────── */
 
@@ -516,28 +556,33 @@ sitemap: false
 
   /* ── Score system ───────────────────────────── */
 
-  function getScores() {
-    try { return JSON.parse(localStorage.getItem(SCORES_KEY)) || []; }
+  function getScores(gameId) {
+    try { return JSON.parse(localStorage.getItem(GAMES[gameId].scoresKey)) || []; }
     catch (e) { return []; }
   }
 
-  function saveScore(initials, pts) {
-    var scores = getScores();
+  function saveScore(gameId, initials, pts) {
+    var scores = getScores(gameId);
     scores.push({ initials: initials.toUpperCase(), score: pts, date: new Date().toISOString().slice(0, 10) });
     scores.sort(function (a, b) { return b.score - a.score; });
     scores = scores.slice(0, 10);
-    localStorage.setItem(SCORES_KEY, JSON.stringify(scores));
+    localStorage.setItem(GAMES[gameId].scoresKey, JSON.stringify(scores));
     return scores;
   }
 
-  function isHighScore(pts) {
-    var scores = getScores();
+  function isHighScore(gameId, pts) {
+    var scores = getScores(gameId);
     if (scores.length < 10) return true;
     return pts > scores[scores.length - 1].score;
   }
 
-  function renderScores(listId, highlightPts, highlightIdx) {
-    var scores = getScores();
+  function renderLobbyScores() {
+    renderScores('breakout', 'lobby-scores-breakout');
+    renderScores('canyon', 'lobby-scores-canyon');
+  }
+
+  function renderScores(gameId, listId, highlightPts, highlightIdx) {
+    var scores = getScores(gameId);
     var el = document.getElementById(listId);
     if (!el) return;
     if (!scores.length) {
@@ -559,9 +604,13 @@ sitemap: false
 
   /* ── Exit / transition out ──────────────────── */
 
+  function stopActiveGame() {
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    if (canyonGame) { canyonGame.destroy(); canyonGame = null; }
+  }
+
   function arcadeExit() {
-    if (rafId) cancelAnimationFrame(rafId);
-    rafId = null;
+    stopActiveGame();
     if (TRANSITION === 'pixel') {
       pixelOut(navigate);
     } else {
@@ -687,6 +736,68 @@ sitemap: false
     c.shadowColor = '#d4a574';
     c.shadowBlur = 9;
     c.fillRect(px2, py2, pw, ph);
+    c.shadowBlur = 0;
+  }
+
+  function drawCanyonPreview() {
+    var cv = document.getElementById('preview-canyon');
+    if (!cv) return;
+    var c = cv.getContext('2d');
+    var W = cv.width, H = cv.height; // 160 × 120
+    var vpX = W / 2, vpY = H * 0.38; // vanishing point
+
+    c.fillStyle = '#050403';
+    c.fillRect(0, 0, W, H);
+
+    // Perspective floor grid
+    c.strokeStyle = 'rgba(196,144,74,0.5)';
+    c.lineWidth = 1;
+    var i;
+    for (i = -4; i <= 4; i++) { // converging longitudinals
+      c.beginPath();
+      c.moveTo(vpX + i * 3, vpY);
+      c.lineTo(vpX + i * 34, H);
+      c.stroke();
+    }
+    for (i = 1; i <= 5; i++) { // horizontals bunching toward horizon
+      var t = i / 5;
+      var y = vpY + (H - vpY) * t * t;
+      c.globalAlpha = 0.25 + t * 0.45;
+      c.beginPath();
+      c.moveTo(0, y); c.lineTo(W, y);
+      c.stroke();
+    }
+    c.globalAlpha = 1;
+
+    // Canyon wall silhouettes
+    c.fillStyle = '#171310';
+    c.beginPath();
+    c.moveTo(0, H); c.lineTo(0, vpY - 26); c.lineTo(14, vpY - 18);
+    c.lineTo(24, vpY - 24); c.lineTo(vpX - 14, vpY - 4); c.lineTo(vpX - 10, vpY + 8);
+    c.lineTo(0, H); c.fill();
+    c.beginPath();
+    c.moveTo(W, H); c.lineTo(W, vpY - 30); c.lineTo(W - 16, vpY - 20);
+    c.lineTo(W - 28, vpY - 26); c.lineTo(vpX + 14, vpY - 4); c.lineTo(vpX + 10, vpY + 8);
+    c.lineTo(W, H); c.fill();
+
+    // Obstacle pillar mid-canyon
+    c.fillStyle = '#14100c';
+    c.strokeStyle = 'rgba(212,165,116,0.7)';
+    c.fillRect(vpX + 8, vpY + 6, 18, 22);
+    c.strokeRect(vpX + 8, vpY + 6, 18, 22);
+
+    // Ship — glowing amber dart
+    var sx = vpX - 14, sy = H - 22;
+    c.shadowColor = '#d4a574';
+    c.shadowBlur = 10;
+    c.fillStyle = '#d4a574';
+    c.beginPath();
+    c.moveTo(sx, sy - 10);
+    c.lineTo(sx - 8, sy + 4);
+    c.lineTo(sx, sy);
+    c.lineTo(sx + 8, sy + 4);
+    c.closePath();
+    c.fill();
     c.shadowBlur = 0;
   }
 
@@ -984,13 +1095,15 @@ sitemap: false
     updateHUD();
     if (lives <= 0) {
       cancelAnimationFrame(rafId); rafId = null;
-      setTimeout(showGameOver, 400);
+      setTimeout(showBreakoutGameOver, 400);
     } else {
       resetBall();
       gameState = 'waiting';
       rafId = requestAnimationFrame(gameLoop);
     }
   }
+
+  function showBreakoutGameOver() { showGameOver(score); }
 
   function levelClear() {
     gameState = 'level-clear';
@@ -1024,16 +1137,21 @@ sitemap: false
 
   /* ── Game over ──────────────────────────────── */
 
-  function showGameOver() {
-    showScreen('gameover');
-    document.getElementById('final-score-val').textContent = score.toLocaleString();
+  var lastFinalScore = 0;
 
-    if (score > 0 && isHighScore(score)) {
+  function showGameOver(finalScore) {
+    lastFinalScore = finalScore;
+    showScreen('gameover');
+    document.getElementById('gameover-scores-title').textContent =
+      'High Scores — ' + GAMES[activeGameId].label;
+    document.getElementById('final-score-val').textContent = finalScore.toLocaleString();
+
+    if (finalScore > 0 && isHighScore(activeGameId, finalScore)) {
       document.getElementById('hiscore-entry').style.display = '';
       startInitialsEntry();
     } else {
       document.getElementById('hiscore-entry').style.display = 'none';
-      renderScores('gameover-scores-list');
+      renderScores(activeGameId, 'gameover-scores-list');
     }
   }
 
@@ -1081,12 +1199,12 @@ sitemap: false
     initialsActive = false;
     document.removeEventListener('keydown', handleInitialsKey);
     var final = initials.join('');
-    saveScore(final, score);
+    saveScore(activeGameId, final, lastFinalScore);
     // Find the new entry's position
-    var scores = getScores();
-    var idx = scores.findIndex(function (s) { return s.score === score && s.initials === final; });
+    var scores = getScores(activeGameId);
+    var idx = scores.findIndex(function (s) { return s.score === lastFinalScore && s.initials === final; });
     document.getElementById('hiscore-entry').style.display = 'none';
-    renderScores('gameover-scores-list', score, idx);
+    renderScores(activeGameId, 'gameover-scores-list', lastFinalScore, idx);
   }
 
   // Click/tap on initial boxes to select
@@ -1106,7 +1224,7 @@ sitemap: false
   document.addEventListener('keydown', function (e) {
     if (initialsActive) return;
 
-    if (currentScreen === 'game') {
+    if (currentScreen === 'game' && activeGameId === 'breakout') {
       if (e.key === 'ArrowLeft'  || e.key === 'a') { e.preventDefault(); pLeft  = true; }
       if (e.key === 'ArrowRight' || e.key === 'd') { e.preventDefault(); pRight = true; }
       if ((e.key === ' ' || e.key === 'Enter') && gameState === 'waiting') {
@@ -1115,13 +1233,8 @@ sitemap: false
       }
     }
 
-    if (e.key === 'Escape') {
-      if (currentScreen === 'game') {
-        if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-        arcadeExit();
-      } else if (currentScreen === 'lobby') {
-        arcadeExit();
-      }
+    if (e.key === 'Escape' && (currentScreen === 'game' || currentScreen === 'lobby')) {
+      arcadeExit();
     }
   });
 
@@ -1131,24 +1244,28 @@ sitemap: false
   });
 
   // Canvas mouse
+  function breakoutActive() {
+    return currentScreen === 'game' && activeGameId === 'breakout' && canvas;
+  }
+
   document.addEventListener('mousemove', function (e) {
-    if (currentScreen !== 'game' || !canvas) return;
+    if (!breakoutActive()) return;
     mouseX = canvasClientX(e.clientX);
   });
 
   document.addEventListener('click', function (e) {
-    if (currentScreen !== 'game' || !canvas) return;
+    if (!breakoutActive()) return;
     if (e.target === canvas && gameState === 'waiting') launchBall();
   });
 
   // Canvas touch
   function onTouchMove(e) {
-    if (currentScreen !== 'game' || !canvas) return;
+    if (!breakoutActive()) return;
     e.preventDefault();
     mouseX = canvasClientX(e.touches[0].clientX);
   }
   function onTouchStart(e) {
-    if (currentScreen !== 'game' || !canvas) return;
+    if (!breakoutActive()) return;
     e.preventDefault();
     mouseX = canvasClientX(e.touches[0].clientX);
     if (gameState === 'waiting') launchBall();
@@ -1164,30 +1281,87 @@ sitemap: false
 
   /* ── Button wiring ──────────────────────────── */
 
-  document.getElementById('cab-breakout').addEventListener('click', function () {
+  function setGameUI(gameId) {
+    activeGameId = gameId;
+    document.getElementById('game-label').textContent = GAMES[gameId].label;
+    document.getElementById('stats-breakout').style.display = gameId === 'breakout' ? '' : 'none';
+    document.getElementById('stats-canyon').style.display   = gameId === 'canyon'   ? '' : 'none';
+    document.getElementById('game-canvas').style.display    = gameId === 'breakout' ? '' : 'none';
+    document.getElementById('canyon-canvas').style.display  = gameId === 'canyon'   ? '' : 'none';
+    document.getElementById('canyon-hint').style.display    = gameId === 'canyon'   ? '' : 'none';
+  }
+
+  function launchBreakout() {
+    stopActiveGame();
+    setGameUI('breakout');
     showScreen('game');
-    setTimeout(function () { initBreakout(); }, 0);
-  });
-  document.getElementById('cab-breakout').addEventListener('keydown', function (e) {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showScreen('game'); setTimeout(initBreakout, 0); }
-  });
+    setTimeout(initBreakout, 0);
+  }
+
+  var canyonLaunchSeq = 0;
+
+  function launchCanyon() {
+    stopActiveGame();
+    setGameUI('canyon');
+    showScreen('game');
+    var body = document.querySelector('.game-body');
+    body.classList.remove('canyon-running');
+    var seq = ++canyonLaunchSeq;
+    import('/assets/js/arcade/canyon.js').then(function (mod) {
+      // Stale load: user re-clicked, switched game, or left the screen
+      // while the module was in flight — don't start a second instance.
+      if (seq !== canyonLaunchSeq || currentScreen !== 'game'
+          || activeGameId !== 'canyon' || canyonGame) return;
+      canyonGame = mod.createCanyonGame({
+        canvas: document.getElementById('canyon-canvas'),
+        container: body,
+        onHud: function (h) {
+          document.getElementById('hud-distance').textContent = h.score.toLocaleString();
+          document.getElementById('hud-speed').textContent = h.speed;
+        },
+        onGameOver: function (finalScore) {
+          if (canyonGame) { canyonGame.destroy(); canyonGame = null; }
+          body.classList.remove('canyon-running');
+          showGameOver(finalScore);
+        }
+      });
+      canyonGame.start();
+    }).catch(function (err) {
+      console.error('Canyon Run failed to load:', err);
+      document.getElementById('canyon-hint').textContent = 'failed to load — check your connection';
+    });
+  }
+
+  function launchGame(gameId) {
+    if (gameId === 'canyon') launchCanyon(); else launchBreakout();
+  }
+
+  function wireCabinet(elId, gameId) {
+    var el = document.getElementById(elId);
+    el.addEventListener('click', function () { launchGame(gameId); });
+    el.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); launchGame(gameId); }
+    });
+  }
+
+  wireCabinet('cab-breakout', 'breakout');
+  wireCabinet('cab-canyon', 'canyon');
 
   document.getElementById('lobby-exit').addEventListener('click', arcadeExit);
 
   document.getElementById('game-exit').addEventListener('click', function () {
-    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    stopActiveGame();
     showScreen('lobby');
-    renderScores('lobby-scores-list');
+    renderLobbyScores();
   });
 
   document.getElementById('play-again').addEventListener('click', function () {
-    showScreen('game');
-    setTimeout(initBreakout, 0);
+    launchGame(activeGameId);
   });
 
   document.getElementById('goto-lobby').addEventListener('click', function () {
     showScreen('lobby');
-    renderScores('lobby-scores-list');
+    renderLobbyScores();
   });
 
   window.addEventListener('resize', fitCanvas);
@@ -1195,8 +1369,9 @@ sitemap: false
   /* ── Init ───────────────────────────────────── */
 
   powerOn();
-  renderScores('lobby-scores-list');
-  document.fonts.ready.then(drawBreakoutPreview).catch(drawBreakoutPreview);
+  renderLobbyScores();
+  function drawPreviews() { drawBreakoutPreview(); drawCanyonPreview(); }
+  document.fonts.ready.then(drawPreviews).catch(drawPreviews);
 
 }());
 </script>

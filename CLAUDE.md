@@ -169,6 +169,38 @@ The key is the exact string the user must type (lowercase). The value is the out
 
 ---
 
+## Arcade (`/arcade/`)
+
+Hidden arcade page (`arcade.html`, standalone `layout: null`, excluded from sitemap). A lobby
+of cabinets launches games; high scores are per-game localStorage keys (top 10, initials +
+date). The shared shell (screens, score tables, initials entry, CRT transitions) lives inline
+in `arcade.html`.
+
+**Games:**
+
+| Cabinet | Tech | Code |
+|---|---|---|
+| Breakout | Canvas 2D, inline in `arcade.html` | scores key `jk-arcade-breakout` |
+| Canyon Run | Three.js (WebGL), lazy-loaded module | `assets/js/arcade/canyon.js` + `canyon-core.js`, scores key `jk-arcade-canyon` |
+
+**Three.js is NOT vendored.** An import map in `arcade.html` pins `three` to an exact version
+on jsdelivr (`https://cdn.jsdelivr.net/npm/three@<ver>/build/three.module.js`). The module is
+dynamically imported only when the Canyon Run cabinet is clicked, so the lobby ships zero 3D
+bytes. To bump the version, edit the import map URL only.
+
+**Canyon Run architecture:** `canyon-core.js` is pure logic (seeded RNG, difficulty curves,
+obstacle row generation with a guaranteed passable gap, AABB collision) and is unit-tested in
+`test/unit/canyon-core.test.js` — run with `npm run test:unit`. `canyon.js` is the Three.js
+renderer/input/lifecycle shell; it exports `createCanyonGame({canvas, container, onHud,
+onGameOver})` returning `{start, destroy}`.
+
+**Adding a game #3:** add an entry to the `GAMES` registry in `arcade.html`, replace the last
+`coming-soon` cabinet with a real one (preview canvas + `wireCabinet` call), add a stats group
+to the game header and a scores panel to the lobby, and follow the Canyon Run pattern (pure
+logic module + lazy-loaded renderer module under `assets/js/arcade/`).
+
+---
+
 ## Comments & Likes (Supabase)
 
 Blog posts load `assets/js/comments/index.js` as a module. The widget talks directly to Supabase from the browser — no server required.
