@@ -3,6 +3,7 @@ layout: post
 title: "Manager and AI User"
 date:   2026-06-22 20:00:00
 future: true
+comments: true
 tags:
   - Engineering Management
   - AI / Machine Learning
