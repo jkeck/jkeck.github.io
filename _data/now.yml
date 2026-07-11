@@ -1,6 +1,6 @@
 # Feeds the home page ticker — keep this short
 blurb: "New blog post is up! \"Manager and AI User\" Check it out!"
-date: "MON · JUN 22"
+date: "FRI · JUL 10"
 
 # Time-bound ticker overrides — active between start/end (ISO 8601, include timezone offset)
 # When active: home page bar scrolls this message; /now shows a live alert banner
@@ -23,11 +23,11 @@ tickers:
 # caption: optional text shown below the image
 # snapshot: {}   # set to empty map (or remove key) to disable
 snapshot:
-  image: /images/now-2026-06-19.jpg
-  alt: "Tiger sleeping peacefully"
-  caption: "Tiger napping · Jun 2026"
-  start: "2026-06-19T14:00:00-07:00"
-  end: "2026-06-19T15:00:00-07:00"
+  image: /images/now-2026-07-10.jpg
+  alt: "Baseball game at night in San Francisco during summer"
+  caption: "Summer Baseball · San Francisco"
+  start: "2026-07-10T20:52:49-07:00"
+  end: "2026-07-10T22:00:00-07:00"
 # Example:
 # snapshot:
 #   image: /images/now.jpg
@@ -37,7 +37,7 @@ snapshot:
 #   end:   "2026-06-30T23:59:00-07:00"
 
 # Now page content — edit sections below to update
-updated: "Jun 19, 2026"
+updated: "Jul 10, 2026"
 
 work: >
   Engineering manager at Ontra, leading a team building legal technology.
